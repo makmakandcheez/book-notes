@@ -8,22 +8,25 @@ router = APIRouter(
 
 @router.get("/")
 async def get_all_books():
-    return set
+    return {"message": "Works!"}
 
 @router.post("/")
 async def add_book():
-    return 
+    return {"message": "Works!"}
 
 @router.get("/{id}")
 async def get_book(id: int):
-    return
+    return {"message": "Works!",
+            "id": id}
 
 @router.put("/{id}")
 async def update_book(id: int):
-    return
+    return {"message": "Works!",
+            "id": id}
 
 @router.delete("/{id}")
 async def delete_book(id: int):
-    return
+    return {"message": "Works!",
+            "id": id}
 
 # Maybe more?
