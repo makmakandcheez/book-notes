@@ -1,11 +1,13 @@
 FROM python:3.14-slim
 
-COPY ./requirements.txt /app/
+COPY --from=ghcr.io/astral-sh/uv:0.11.32 /uv /uvx /bin/
 
-WORKDIR /app/
+WORKDIR /app
 
-RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-install-project
 
-COPY ./app /app
+COPY . .
+RUN uv sync --frozen
 
-CMD ["fastapi", "run", "/app/app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "fastapi", "run", "/app/app/main.py", "--host", "0.0.0.0", "--port", "8000"]
