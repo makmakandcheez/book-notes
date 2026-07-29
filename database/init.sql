@@ -1,11 +1,18 @@
 -- BOOKS
+-- CREATE TABLE books (
+--     bk_id SERIAL PRIMARY KEY,
+--     bk_title VARCHAR(255) NOT NULL,
+--     bk_author VARCHAR(100) NOT NULL,
+--     bk_date_published DATE,
+--     bk_rating NUMERIC(3,2),
+--     bk_img_url TEXT
+-- );
+
 CREATE TABLE books (
     bk_id SERIAL PRIMARY KEY,
     bk_title VARCHAR(255) NOT NULL,
     bk_author VARCHAR(100) NOT NULL,
-    bk_date_published DATE,
-    bk_rating NUMERIC(3,2),
-    bk_img_url TEXT
+    bk_rating NUMERIC(3,2)
 );
 
 
@@ -40,7 +47,7 @@ CREATE TABLE books_notes (
 -- BOOKS indexes
 CREATE INDEX IF NOT EXISTS idx_books_title ON books (bk_title);
 CREATE INDEX IF NOT EXISTS idx_books_author ON books (bk_author);
-CREATE INDEX IF NOT EXISTS idx_books_date_published ON books (bk_date_published);
+-- CREATE INDEX IF NOT EXISTS idx_books_date_published ON books (bk_date_published);
 CREATE INDEX IF NOT EXISTS idx_books_rating ON books (bk_rating);
 
 -- NOTES indexes

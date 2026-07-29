@@ -1,10 +1,11 @@
 from fastapi import FastAPI, APIRouter
-from .api.v1.endpoints import books, notes
+from app.api.v1.endpoints import books, notes
 
-app = FastAPI()
+app = FastAPI(root_path="/api/v1")
 
-app.include_router(books.router, prefix="/api")
-app.include_router(notes.router, prefix="/api")
+# app.include_router(books.router, prefix="/v1")
+app.include_router(books.router)
+app.include_router(notes.router)
 
 @app.get("/")
 async def root():

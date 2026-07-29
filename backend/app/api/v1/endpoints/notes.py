@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 router = APIRouter(
-    prefix="/v1/notes",
+    prefix="/notes",
     tags=["notes"],
     responses={404: {"description": "Not Found"}},
 )
