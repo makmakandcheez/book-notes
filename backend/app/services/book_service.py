@@ -15,9 +15,6 @@ class BookService:
         )
         return await self.repo.create(book)
 
-    async def list_books(self) -> list[Book]:
-        return await self.repo.list_all()
-
     async def filter_books(self, title: str | None = None, author: str | None = None) -> list[Book]:
         return await self.repo.filter(title=title, author=author)
 

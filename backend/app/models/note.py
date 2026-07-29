@@ -8,8 +8,8 @@ from app.core.database import Base
 class Note(Base):
     __tablename__ = "notes"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(100), nullable=False)
-    body: Mapped[str] = mapped_column(String, nullable=False)
-    date_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    date_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    nt_id: Mapped[int] = mapped_column(primary_key=True)
+    nt_title: Mapped[str] = mapped_column(String(100), nullable=False)
+    nt_body: Mapped[str] = mapped_column(String, nullable=False)
+    nt_date_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    nt_date_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)

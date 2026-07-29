@@ -18,3 +18,17 @@ def get_book_service(repo: BookRepositoryDep) -> BookService:
     return BookService(repo)
 
 BookServiceDep = Annotated[BookService, Depends(get_book_service)]
+
+
+from app.repositories.note_repo import NoteRepository
+from app.services.note_service import NoteService
+
+def get_note_repository(db: DbSession) -> NoteRepository:
+    return NoteRepository(db)
+
+NoteRepositoryDep = Annotated[NoteRepository, Depends(get_note_repository)]
+
+def get_note_service(repo: NoteRepositoryDep) -> NoteService:
+    return NoteService(repo)
+
+NoteServiceDep = Annotated[NoteService, Depends(get_note_service)]

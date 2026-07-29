@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.book import Book
@@ -25,9 +25,6 @@ class BookRepository:
         await self.db.flush()
         return book
 
-    async def list_all(self) -> list[Book]:
-        result = await self.db.execute(select(Book))
-        return list(result.scalars().all())
 
     async def delete(self, id: int) -> Book:
         book = await self.get_by_id(id)
