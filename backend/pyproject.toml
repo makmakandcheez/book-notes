@@ -49,4 +49,5 @@ dependencies = [
     "watchfiles==1.2.0",
     "websockets==16.1",
     "sqlalchemy>=2.0.51",
+    "asyncpg>=0.31.0",
 ]
