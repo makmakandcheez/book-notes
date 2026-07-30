@@ -7,6 +7,13 @@
 --     bk_rating NUMERIC(3,2),
 --     bk_img_url TEXT
 -- );
+CREATE TABLE users (
+    usr_id SERIAL PRIMARY KEY,
+    usr_username VARCHAR(255) UNIQUE NOT NULL,
+    usr_email  VARCHAR(255) UNIQUE NOT NULL,
+    usr_hashed_password VARCHAR(255)
+);
+
 
 CREATE TABLE books (
     bk_id SERIAL PRIMARY KEY,
@@ -43,6 +50,9 @@ CREATE TABLE books_notes (
 
 
 -- INDEXES
+-- USERS indexes
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (usr_email);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users (usr_username);
 
 -- BOOKS indexes
 CREATE INDEX IF NOT EXISTS idx_books_title ON books (bk_title);

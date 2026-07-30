@@ -32,3 +32,17 @@ def get_note_service(repo: NoteRepositoryDep) -> NoteService:
     return NoteService(repo)
 
 NoteServiceDep = Annotated[NoteService, Depends(get_note_service)]
+
+
+from app.repositories.user_repo import UserRepository
+from app.services.user_service import UserService
+
+def get_user_repository(db: DbSession) -> UserRepository:
+    return UserRepository(db)
+
+UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repository)]
+
+def get_user_service(repo: UserRepositoryDep) -> UserService:
+    return UserService(repo)
+
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]

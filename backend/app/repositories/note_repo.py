@@ -7,7 +7,7 @@ class NoteRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def get_by_id(self, id: int) -> Note:
+    async def get_by_id(self, id: int) -> Note | None:
         return await self.db.get(Note, id)
 
     async def filter(self, *, title: str | None = None) -> list[Note]:
@@ -22,7 +22,7 @@ class NoteRepository:
         await self.db.flush()
         return note
 
-    async def delete(self, id: int) -> Note:
+    async def delete(self, id: int) -> Note | None:
         note = await self.get_by_id(id)
         if note:
             await self.db.delete(note)

@@ -7,7 +7,7 @@ class BookRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def get_by_id(self, bk_id: int) -> Book:
+    async def get_by_id(self, bk_id: int) -> Book | None:
         return await self.db.get(Book, bk_id)
 
     async def filter(self, *, title: str | None = None, author: str | None = None) -> list[Book]:
@@ -26,7 +26,7 @@ class BookRepository:
         return book
 
 
-    async def delete(self, id: int) -> Book:
+    async def delete(self, id: int) -> Book | None:
         book = await self.get_by_id(id)
         if book:
             await self.db.delete(book)
