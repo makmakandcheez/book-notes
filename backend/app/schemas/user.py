@@ -7,7 +7,13 @@ class UserCreate(BaseModel):
     password: str
 
 
-class UserResponse(BaseModel):
+class UserPublic(BaseModel):
+    usr_id: int
+    usr_username: str
+    model_config = {"from_attributes": True}
+
+
+class UserPrivate(BaseModel):
     usr_id: int
     usr_username: str
     usr_email: EmailStr
