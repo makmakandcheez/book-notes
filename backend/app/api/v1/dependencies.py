@@ -7,7 +7,9 @@ from app.core.database import get_db
 from app.repositories.book_repo import BookRepository
 from app.services.book_service import BookService
 
+# Database
 DbSession = Annotated[AsyncSession, Depends(get_db)]
+
 
 def get_book_repository(db: DbSession) -> BookRepository:
     return BookRepository(db)
@@ -46,3 +48,48 @@ def get_user_service(repo: UserRepositoryDep) -> UserService:
     return UserService(repo)
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+
+from app.services.auth_service import AuthService
+
+def get_auth_service(repo: UserRepositoryDep) -> AuthService:
+    return AuthService(repo)
+
+AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+
+
+### Authorization
+from fastapi.security import OAuth2PasswordBearer
+from fastapi import HTTPException, status
+from jwt.exceptions import InvalidTokenError
+from app.core.security import decode_access_token
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/token"
+)
+
+async def get_current_user(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        user_service: UserServiceDep
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Coud not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = decode_access_token(token)
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+        user_id = int(user_id)
+    except (InvalidTokenError, ValueError, TypeError):
+        raise credentials_exception
+
+    user = await user_service.get_user_by_id(user_id)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+# def get_current_active_user
