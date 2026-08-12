@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
 
-from app.api.v1.dependencies import UserServiceDep
-from app.schemas.user import UserCreate, UserResponse
+from fastapi import APIRouter, HTTPException, Depends
+
+from app.api.v1.dependencies import UserServiceDep, get_current_user
+from app.models.user import User
+from app.schemas.user import UserPublic
 
 router = APIRouter(
     prefix="/users",
@@ -10,36 +13,34 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=UserResponse, status_code=201)
-async def create_user(data: UserCreate, service: UserServiceDep) -> UserResponse:
-    try:
-        user = await service.register(data)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
-    return UserResponse.model_validate(user)
-
-
-@router.get("/", response_model=list[UserResponse])
+@router.get("/", response_model=list[UserPublic])
 async def get_users(
     service: UserServiceDep,
     username: str | None = None
-) -> list[UserResponse]:
+) -> list[UserPublic]:
     users = await service.filter_users(username=username)
-    return [UserResponse.model_validate(u) for u in users]
+    return [UserPublic.model_validate(u) for u in users]
 
 
-@router.get("/{id}", response_model=UserResponse)
-async def get_user(id: int, service: UserServiceDep) -> UserResponse:
-    return await service.get_user(id)
+@router.get("/me", response_model=UserPublic)
+async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]) -> UserPublic:
+    return current_user
+
+
+@router.get("/{id}", response_model=UserPublic)
+async def get_user(id: int, service: UserServiceDep) -> UserPublic:
+    return await service.get_user_by_id(id)
 
 @router.put("/{id}")
 async def update_book(id: int):
     return {"message": "Works!",
             "id": id}
 
-@router.delete("/{id}", response_model=UserResponse)
-async def delete_book(id: int, service: UserServiceDep):
+@router.delete("/{id}", response_model=UserPublic)
+async def delete_user(id: int, service: UserServiceDep) -> UserPublic:
     user = await service.delete_user(id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+    
