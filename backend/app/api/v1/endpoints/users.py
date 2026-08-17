@@ -1,6 +1,6 @@
 from typing import Annotated
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Query
 
 from app.api.v1.dependencies import UserServiceDep, CurrentUserDep
 from app.models.user import User
@@ -16,9 +16,11 @@ router = APIRouter(
 @router.get("/", response_model=list[UserPublic])
 async def get_users(
     service: UserServiceDep,
-    username: str | None = None
+    username: str | None = None,
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=0, le=10)] = 5
 ) -> list[UserPublic]:
-    users = await service.filter_users(username=username)
+    users = await service.get_users(page=page, limit=limit)
     return [UserPublic.model_validate(u) for u in users]
 
 

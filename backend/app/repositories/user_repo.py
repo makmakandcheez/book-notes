@@ -25,6 +25,12 @@ class UserRepository:
         await self.db.flush()
         return user
 
+    async def get_users(self, offset: int, limit: int, *, username: str | None = None) -> list[User]:
+        stmt = select(User)
+        stmt = stmt.order_by(User.created_at).offset(offset).limit(limit)
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def filter_user(self, *, username: str | None = None) -> list[User]:
         stmt = select(User)
         if username is not None:
