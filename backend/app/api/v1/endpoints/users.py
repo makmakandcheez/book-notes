@@ -1,5 +1,5 @@
 from typing import Annotated
-
+from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends
 
 from app.api.v1.dependencies import UserServiceDep, CurrentUserDep
@@ -28,12 +28,12 @@ async def read_users_me(current_user: CurrentUserDep) -> UserPublic:
 
 
 @router.get("/{id}", response_model=UserPublic)
-async def get_user(id: int, service: UserServiceDep) -> UserPublic:
+async def get_user(id: UUID, service: UserServiceDep) -> UserPublic:
     return await service.get_user_by_id(id)
 
 @router.patch("/{id}")
 async def update_user(
-    id: int,
+    id: UUID,
     service: UserServiceDep,
     current_user: CurrentUserDep) -> UserPublic:
     try:
@@ -43,7 +43,7 @@ async def update_user(
     
 
 @router.delete("/{id}", response_model=UserPublic)
-async def delete_user(id: int, service: UserServiceDep) -> UserPublic:
+async def delete_user(id: UUID, service: UserServiceDep) -> UserPublic:
     user = await service.delete_user(id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")

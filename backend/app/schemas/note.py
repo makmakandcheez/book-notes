@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -11,12 +12,12 @@ class NoteUpdate(BaseModel):
     body: str | None = None
 
 class NoteResponse(BaseModel):
-    id: int
+    id: uuid.UUID
     title: str
     body: str
     date_created: datetime
     date_updated: datetime
-    user_id: int
+    user_id: uuid.UUID
 
     model_config = {"from_attributes": True}
 

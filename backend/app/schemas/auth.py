@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel
 
 
@@ -7,4 +8,4 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: int
+    user_id: uuid.UUID

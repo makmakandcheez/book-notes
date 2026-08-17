@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime
 
 from sqlalchemy import select
@@ -10,7 +11,7 @@ class NoteRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def get_note_by_id(self, id: int) -> Note | None:
+    async def get_note_by_id(self, id: UUID) -> Note | None:
         return await self.db.get(Note, id)
 
     async def filter_note(self, *, title: str | None = None) -> list[Note]:

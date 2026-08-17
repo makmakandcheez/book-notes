@@ -60,6 +60,7 @@ AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 
 
 ### Authorization
+from uuid import UUID
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status
 from jwt.exceptions import InvalidTokenError
@@ -83,7 +84,7 @@ async def get_current_user(
         user_id = payload.get("sub")
         if user_id is None:
             raise credentials_exception
-        user_id = int(user_id)
+        user_id = UUID(user_id)
     except (InvalidTokenError, ValueError, TypeError):
         raise credentials_exception
 

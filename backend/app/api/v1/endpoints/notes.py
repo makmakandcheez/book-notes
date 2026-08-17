@@ -1,5 +1,5 @@
 from typing import Annotated
-
+from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends
 
 from app.api.v1.dependencies import NoteServiceDep, CurrentUserDep
@@ -33,7 +33,7 @@ async def create_note(
     return NoteResponse.model_validate(note)
 
 @router.get("/{id}", response_model=NoteResponse)
-async def get_note(id: int, service: NoteServiceDep) -> NoteResponse:
+async def get_note(id: UUID, service: NoteServiceDep) -> NoteResponse:
     try:
         note = await service.get_by_id(id)
     except ValueError as e:
@@ -44,7 +44,7 @@ async def get_note(id: int, service: NoteServiceDep) -> NoteResponse:
 
 @router.patch("/{id}", response_model=NoteResponse)
 async def update_note(
-    id: int,
+    id: UUID,
     data: NoteUpdate, 
     service: NoteServiceDep,
     current_user: CurrentUserDep
@@ -58,7 +58,7 @@ async def update_note(
 
 @router.delete("/{id}", response_model=NoteResponse)
 async def delete_note(
-    id: int, 
+    id: UUID, 
     service: NoteServiceDep
     ) -> NoteResponse:
     note = await service.delete_note(id)

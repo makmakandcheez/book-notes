@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel, EmailStr
 
 
@@ -8,13 +9,13 @@ class UserCreate(BaseModel):
 
 
 class UserPublic(BaseModel):
-    id: int
+    id: uuid.UUID
     username: str
     model_config = {"from_attributes": True}
 
 
 class UserPrivate(BaseModel):
-    id: int
+    id: uuid.UUID
     username: str
     email: EmailStr
 
