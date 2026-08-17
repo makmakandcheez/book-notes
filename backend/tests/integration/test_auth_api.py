@@ -14,7 +14,7 @@ async def test_register_user(client):
     )
     assert response.status_code == 201
     data = response.json()
-    assert data["usr_username"] == "Johnny" 
+    assert data["username"] == "Johnny" 
 
 
 @pytest.mark.asyncio

@@ -16,9 +16,9 @@ async def service(db):
 async def test_register_user(service):
     data = UserCreate(email="test@test.com", username="tester", password="1234")
     user = await service.register(data)
-    assert user.usr_email == "test@test.com"
-    assert user.usr_username == "tester"
-    assert user.usr_hashed_password != "1234"
+    assert user.email == "test@test.com"
+    assert user.username == "tester"
+    assert user.hashed_password != "1234"
 
 
 @pytest.mark.asyncio
@@ -43,9 +43,9 @@ async def test_authenticate_user(service):
     data = UserCreate(email="test@test.com", username="tester", password="1234")
     await service.register(data)
     user = await service.authenticate_user("tester", "1234")
-    assert user.usr_email == "test@test.com"
-    assert user.usr_username == "tester"
-    assert user.usr_hashed_password != "1234"
+    assert user.email == "test@test.com"
+    assert user.username == "tester"
+    assert user.hashed_password != "1234"
 
 
 @pytest.mark.asyncio

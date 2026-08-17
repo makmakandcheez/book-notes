@@ -1,6 +1,5 @@
 import pytest
 
-
 @pytest.mark.asyncio
 async def test_read_users_me(client):
     await client.post(
@@ -20,7 +19,6 @@ async def test_read_users_me(client):
     )
 
     token = response.json()["access_token"]
-    print(token)
     response = await client.get(
         "api/v1/users/me",
         headers={
@@ -30,5 +28,5 @@ async def test_read_users_me(client):
 
     assert response.status_code == 200
     user = response.json()
-    assert int(user["usr_id"]) == 1
-    assert user["usr_username"] == "tester" 
+    assert int(user["id"]) == 1
+    assert user["username"] == "tester" 
