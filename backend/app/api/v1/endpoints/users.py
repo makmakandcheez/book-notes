@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from app.api.v1.dependencies import UserServiceDep, get_current_user
+from app.api.v1.dependencies import UserServiceDep, CurrentUserDep
 from app.models.user import User
 from app.schemas.user import UserPublic
 
@@ -23,7 +23,7 @@ async def get_users(
 
 
 @router.get("/me", response_model=UserPublic)
-async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]) -> UserPublic:
+async def read_users_me(current_user: CurrentUserDep) -> UserPublic:
     return current_user
 
 
@@ -31,10 +31,16 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
 async def get_user(id: int, service: UserServiceDep) -> UserPublic:
     return await service.get_user_by_id(id)
 
-@router.put("/{id}")
-async def update_book(id: int):
-    return {"message": "Works!",
-            "id": id}
+@router.patch("/{id}")
+async def update_user(
+    id: int,
+    service: UserServiceDep,
+    current_user: CurrentUserDep) -> UserPublic:
+    try:
+        user = await service.update_user()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    
 
 @router.delete("/{id}", response_model=UserPublic)
 async def delete_user(id: int, service: UserServiceDep) -> UserPublic:

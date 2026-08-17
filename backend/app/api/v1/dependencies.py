@@ -4,6 +4,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.models.user import User
 from app.repositories.book_repo import BookRepository
 from app.services.book_service import BookService
 
@@ -91,5 +92,7 @@ async def get_current_user(
         raise credentials_exception
     return user
 
+
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
 # def get_current_active_user
