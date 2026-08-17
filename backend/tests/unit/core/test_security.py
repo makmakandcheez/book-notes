@@ -1,3 +1,5 @@
+from uuid import uuid4, UUID
+
 from app.core.security import (
     verify_password,
     get_password_hash,
@@ -6,23 +8,26 @@ from app.core.security import (
 )
 
 def test_create_and_decode_access_token():
-    data = {"sub": "123"}
+    user_id = uuid4()
+    data = {"sub": str(user_id)}
     token = create_access_token(data)
     decoded_data = decode_access_token(token)
-    assert decoded_data["sub"] == "123"
+    assert UUID(decoded_data["sub"]) == user_id
     assert "exp" in decoded_data
 
 
 def test_create_and_decode_access_token_with_role():
+    user_id = uuid4()
     data = {
-        "sub": "123",
+        "sub": str(user_id),
         "role": "user",
         }
     
     token = create_access_token(data)
     decoded_data = decode_access_token(token)
 
-    assert decoded_data["sub"] == "123"
+    assert UUID(decoded_data["sub"]) == user_id
+    assert decoded_data["role"] == "user"
     assert "exp" in decoded_data
 
 

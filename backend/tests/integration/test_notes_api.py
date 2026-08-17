@@ -1,7 +1,7 @@
 from datetime import timedelta
-
+from uuid import UUID, uuid4
 import pytest
-from app.core.security import create_access_token
+from app.core.security import create_access_token, decode_access_token
 
 
 @pytest.mark.asyncio
@@ -17,15 +17,14 @@ async def test_create_note(client, auth_token):
         }
     )
     note = response.json()
-    assert int(note["id"]) == 1
     assert note["title"] == "Test Note"
     assert note["body"] == "Test Body"
-    assert note["user_id"] == 1
+    assert note["user_id"] == decode_access_token(auth_token)["sub"]
 
 
 @pytest.mark.asyncio
 async def test_update_note(client, auth_token):
-    await client.post(
+    response = await client.post(
         "api/v1/notes/",
         headers={
             "Authorization": f"Bearer {auth_token}"
@@ -35,9 +34,10 @@ async def test_update_note(client, auth_token):
             "body": "Test Body"
         }
     )
+    note_id = UUID(response.json()["id"])
 
     response = await client.patch(
-        "api/v1/notes/1",
+        f"api/v1/notes/{str(note_id)}",
         headers={
             "Authorization": f"Bearer {auth_token}"
         },
@@ -47,6 +47,7 @@ async def test_update_note(client, auth_token):
     )
 
     note = response.json()
+    assert UUID(note["id"]) == note_id
     assert note["title"] == "Test Note"
     assert note["body"] == "Update body"
 
@@ -54,7 +55,7 @@ async def test_update_note(client, auth_token):
 # Authentication Error
 @pytest.mark.asyncio
 async def test_update_note_no_token(client, auth_token):
-    await client.post(
+    response = await client.post(
         "api/v1/notes/",
         headers={
             "Authorization": f"Bearer {auth_token}"
@@ -65,8 +66,9 @@ async def test_update_note_no_token(client, auth_token):
         }
     )
 
+    note_id = UUID(response.json()["id"])
     response = await client.patch(
-            "api/v1/notes/1",
+            f"api/v1/notes/{str(note_id)}",
             json={
                 "body": "Update body"
             }
@@ -77,7 +79,7 @@ async def test_update_note_no_token(client, auth_token):
 
 
     response = await client.get(
-        "api/v1/notes/1"
+        f"api/v1/notes/{str(note_id)}"
     )
 
     note = response.json()
@@ -88,7 +90,7 @@ async def test_update_note_no_token(client, auth_token):
 # Authorization Error
 @pytest.mark.asyncio
 async def test_update_note_wrong_token(client, auth_token):
-    await client.post(
+    response = await client.post(
         "api/v1/notes/",
         headers={
             "Authorization": f"Bearer {auth_token}"
@@ -99,8 +101,9 @@ async def test_update_note_wrong_token(client, auth_token):
         }
     )
 
+    note_id = UUID(response.json()["id"])
     response = await client.patch(
-            "api/v1/notes/1",
+            f"api/v1/notes/{str(note_id)}",
             headers={
                 "Authorization": "Bearer wrong-token"
             },
@@ -114,7 +117,7 @@ async def test_update_note_wrong_token(client, auth_token):
 
 
     response = await client.get(
-        "api/v1/notes/1"
+        f"api/v1/notes/{str(note_id)}"
     )
 
     note = response.json()
@@ -124,7 +127,7 @@ async def test_update_note_wrong_token(client, auth_token):
 
 @pytest.mark.asyncio
 async def test_update_note_expired_token(client, auth_token):
-    await client.post(
+    response = await client.post(
         "api/v1/notes/",
         headers={
             "Authorization": f"Bearer {auth_token}"
@@ -134,10 +137,11 @@ async def test_update_note_expired_token(client, auth_token):
             "body": "Test Body"
         }
     )
-
-    good_token = create_access_token(data={"sub": "1"})
+    note_id = UUID(response.json()["id"])
+    user_id = UUID(decode_access_token(auth_token)["sub"])
+    good_token = create_access_token(data={"sub": str(user_id)})
     response = await client.patch(
-            "api/v1/notes/1",
+            f"api/v1/notes/{str(note_id)}",
             headers={
                 "Authorization": f"Bearer {good_token}"
             },
@@ -149,9 +153,9 @@ async def test_update_note_expired_token(client, auth_token):
     assert response.json()["title"] == "Test Note"
     assert response.json()["body"] == "Update body"
 
-    expired_token = create_access_token(data={"sub": "1"}, expires_delta=timedelta(minutes=-1))
+    expired_token = create_access_token(data={"sub": str(user_id)}, expires_delta=timedelta(minutes=-1))
     response = await client.patch(
-            "api/v1/notes/1",
+            f"api/v1/notes/{str(note_id)}",
             headers={
                 "Authorization": f"Bearer {expired_token}"
             },
@@ -162,7 +166,7 @@ async def test_update_note_expired_token(client, auth_token):
     assert response.status_code == 401
 
     response = await client.get(
-        "api/v1/notes/1"
+        f"api/v1/notes/{str(note_id)}"
     )
 
     assert response.json()["title"] == "Test Note"

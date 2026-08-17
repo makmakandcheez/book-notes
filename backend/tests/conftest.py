@@ -11,7 +11,12 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine
 )
 
+from app.core.security import decode_access_token
 from app.core.database import Base, get_db
+from app.schemas.user import UserCreate
+from app.services.note_service import NoteService
+from app.services.auth_service import AuthService
+from app.repositories.user_repo import UserRepository
 from app.main import app
 
 TEST_DATABASE_URL = os.environ["DATABASE_URL"]
@@ -51,6 +56,21 @@ async def client(db) -> AsyncClient: # type: ignore
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as c:
         yield c
+
+
+#-----------------------
+@pytest_asyncio.fixture
+async def auth_service(db):
+    repo = UserRepository(db)
+    return AuthService(repo)
+
+
+@pytest_asyncio.fixture
+async def create_user(auth_service):
+    data = UserCreate(email="test@test.com", username="tester", password="1234")
+    user = await auth_service.register(data)
+    return user
+
 
 
 @pytest_asyncio.fixture
