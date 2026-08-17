@@ -7,15 +7,15 @@ class BookRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def get_by_id(self, bk_id: int) -> Book | None:
-        return await self.db.get(Book, bk_id)
+    async def get_by_id(self, book_id: int) -> Book | None:
+        return await self.db.get(Book, book_id)
 
     async def filter(self, *, title: str | None = None, author: str | None = None) -> list[Book]:
         stmt = select(Book)
         if title is not None:
-            stmt = stmt.where(Book.bk_title == title)
+            stmt = stmt.where(Book.title == title)
         if author is not None:
-            stmt = stmt.where(Book.bk_author == author)
+            stmt = stmt.where(Book.author == author)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 

@@ -8,14 +8,14 @@ class UserCreate(BaseModel):
 
 
 class UserPublic(BaseModel):
-    usr_id: int
-    usr_username: str
+    id: int
+    username: str
     model_config = {"from_attributes": True}
 
 
 class UserPrivate(BaseModel):
-    usr_id: int
-    usr_username: str
-    usr_email: EmailStr
+    id: int
+    username: str
+    email: EmailStr
 
     model_config = {"from_attributes": True}

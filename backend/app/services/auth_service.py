@@ -25,9 +25,9 @@ class AuthService:
         if username:
             raise ValueError("A user with this username already exists")
         user = User(
-            usr_username=data.username,
-            usr_email=data.email,
-            usr_hashed_password=get_password_hash(data.password),
+            username=data.username,
+            email=data.email,
+            hashed_password=get_password_hash(data.password),
         )
         return await self.repo.create_user(user)
 
@@ -38,7 +38,7 @@ class AuthService:
         if not user:
             verify_password(password, DUMMY_HASH)
             return None
-        if not verify_password(password, user.usr_hashed_password):
+        if not verify_password(password, user.hashed_password):
             return None
         return user
 

@@ -6,13 +6,17 @@ class NoteCreate(BaseModel):
     title: str
     body: str
 
+class NoteUpdate(BaseModel):
+    title: str | None = None
+    body: str | None = None
 
 class NoteResponse(BaseModel):
-    nt_id: int
-    nt_title: str
-    nt_body: str
-    nt_date_created: datetime
-    nt_date_updated: datetime
+    id: int
+    title: str
+    body: str
+    date_created: datetime
+    date_updated: datetime
+    user_id: int
 
     model_config = {"from_attributes": True}
 

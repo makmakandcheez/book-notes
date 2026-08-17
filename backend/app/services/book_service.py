@@ -9,9 +9,9 @@ class BookService:
 
     async def add_book(self, data: BookCreate) -> Book:
         book = Book(
-            bk_title=data.bk_title,
-            bk_author=data.bk_author,
-            bk_rating=data.bk_rating
+            title=data.title,
+            author=data.author,
+            rating=data.rating
         )
         return await self.repo.create(book)
 
