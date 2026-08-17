@@ -37,7 +37,7 @@ async def _override_dependencies():
 
 
 @pytest_asyncio.fixture
-async def db() -> AsyncSession:
+async def db() -> AsyncSession: # type: ignore
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     async with TestSession() as session:
@@ -47,9 +47,31 @@ async def db() -> AsyncSession:
 
 
 @pytest_asyncio.fixture
-async def client(db) -> AsyncClient:
+async def client(db) -> AsyncClient: # type: ignore
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as c:
         yield c
+
+
+@pytest_asyncio.fixture
+async def auth_token(client):
+    await client.post(
+        "api/v1/auth/signup",
+        json={
+            "email": "test@example.com",
+            "username": "Johnny",
+            "password": "123"
+            },
+    )
+
+    response = await client.post(
+        "api/v1/auth/token",
+        data={
+            "username": "Johnny",
+            "password": "123"
+            },
+    )
+
+    return response.json()["access_token"]
 
        
