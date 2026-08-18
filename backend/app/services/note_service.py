@@ -26,6 +26,7 @@ class NoteService:
     async def update_note(self, note_id: UUID, data: NoteUpdate, user_id: UUID) -> Note:
         note = await self.repo.get_note_by_id(note_id)
         if note.user_id != user_id:
+            # Need to change this. This is not a value error its an authorization error.
             raise ValueError("This is not your note.")
         new_data = data.model_dump(exclude_unset=True)
         await self.repo.update_note(note, new_data)

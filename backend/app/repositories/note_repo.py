@@ -26,10 +26,9 @@ class NoteRepository:
         await self.db.flush()
         return note
 
+    # need to update all functions to receive id's and not ORM instances
     async def update_note(self, note: Note, data: dict) -> Note:
-        print(data)
         for key, value in data.items():
-            print(key, value)
             setattr(note, key, value)
         note.date_updated = func.now()
         await self.db.flush()

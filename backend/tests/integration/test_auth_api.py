@@ -36,8 +36,7 @@ async def test_login_for_access_token(client):
               }
     )
     assert response.status_code == 200
-    token = response.json()["access_token"]
-    decoded_token = decode_access_token(token)
+    decoded_token = decode_access_token(response.json()["access_token"])
     assert UUID(decoded_token["sub"]) == user_id
     assert "exp" in decoded_token
 
