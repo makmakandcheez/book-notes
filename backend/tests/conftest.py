@@ -16,6 +16,7 @@ from app.core.database import Base, get_db
 from app.schemas.user import UserCreate
 from app.services.note_service import NoteService
 from app.services.auth_service import AuthService
+from app.services.user_service import UserService
 from app.repositories.user_repo import UserRepository
 from app.main import app
 
@@ -60,9 +61,18 @@ async def client(db) -> AsyncClient: # type: ignore
 
 #-----------------------
 @pytest_asyncio.fixture
+async def user_repo(db):
+    return UserRepository(db)
+
+@pytest_asyncio.fixture
 async def auth_service(db):
     repo = UserRepository(db)
     return AuthService(repo)
+
+@pytest_asyncio.fixture
+async def user_service(db):
+    repo = UserRepository(db)
+    return UserService(repo)
 
 
 @pytest_asyncio.fixture

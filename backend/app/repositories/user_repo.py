@@ -27,6 +27,8 @@ class UserRepository:
 
     async def get_users(self, offset: int, limit: int, *, username: str | None = None) -> list[User]:
         stmt = select(User)
+        if username:
+            stmt = stmt.where(User.username == username)
         stmt = stmt.order_by(User.created_at).offset(offset).limit(limit)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
@@ -38,8 +40,17 @@ class UserRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def update_user_username(self, user: User, username: str) -> User:
-        pass
+    async def update_user(self, user_id: UUID, data: dict) -> User:
+        user = await self.get_user_by_id(user_id)
+        if user is not None:
+            for key, value in data.items():
+                setattr(user, key, value)
+            await self.db.flush()
+            await self.db.refresh(user)
+        return user
+
+
+
 
     async def delete_user(self, id: UUID) -> User:
         user = await self.get_user_by_id(id)

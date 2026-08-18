@@ -1,10 +1,10 @@
 from typing import Annotated
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, status
 
 from app.api.v1.dependencies import UserServiceDep, CurrentUserDep
 from app.models.user import User
-from app.schemas.user import UserPublic
+from app.schemas.user import UserPublic, UserUpdate
 
 router = APIRouter(
     prefix="/users",
@@ -13,14 +13,14 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=list[UserPublic])
+@router.get("/", status_code=status.HTTP_200_OK, response_model=list[UserPublic])
 async def get_users(
     service: UserServiceDep,
     username: str | None = None,
     page: Annotated[int, Query(ge=1)] = 1,
-    limit: Annotated[int, Query(ge=0, le=10)] = 5
+    limit: Annotated[int, Query(ge=1, le=10)] = 5
 ) -> list[UserPublic]:
-    users = await service.get_users(page=page, limit=limit)
+    users = await service.get_users(page=page, limit=limit, username=username)
     return [UserPublic.model_validate(u) for u in users]
 
 
@@ -31,24 +31,44 @@ async def read_users_me(current_user: CurrentUserDep) -> UserPublic:
 
 @router.get("/{id}", response_model=UserPublic)
 async def get_user(id: UUID, service: UserServiceDep) -> UserPublic:
-    return await service.get_user_by_id(id)
+    try:
+        user = await service.get_user_by_id(id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return UserPublic.model_validate(user)
+
 
 @router.patch("/{id}")
 async def update_user(
     id: UUID,
+    data: UserUpdate,
     service: UserServiceDep,
-    current_user: CurrentUserDep) -> UserPublic:
+    current_user: CurrentUserDep
+) -> UserPublic:
     try:
-        user = await service.update_user()
+        user = await service.update_user(id, data, current_user)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
-    
-
-@router.delete("/{id}", response_model=UserPublic)
-async def delete_user(id: UUID, service: UserServiceDep) -> UserPublic:
-    user = await service.delete_user(id)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return UserPublic.model_validate(user)   
+
+
+# Setting status_code=204 is good if no content, but I do want to return the deleted user, so it stays 200.
+@router.delete("/{id}", response_model=UserPublic)
+async def delete_user(
+    id: UUID, 
+    service: UserServiceDep,
+    current_user: CurrentUserDep
+) -> UserPublic:
+    try:
+        user = await service.delete_user(user_id=id, current_user=current_user)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
     
