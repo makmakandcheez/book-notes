@@ -113,7 +113,7 @@ async def test_update_note_wrong_token(client, auth_token):
     )
 
     assert response.status_code == 401
-    assert response.json()["detail"] == "Coud not validate credentials"
+    assert response.json()["detail"] == "Could not validate credentials"
 
 
     response = await client.get(
