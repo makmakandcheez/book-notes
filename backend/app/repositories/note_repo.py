@@ -14,10 +14,27 @@ class NoteRepository:
     async def get_note_by_id(self, id: UUID) -> Note | None:
         return await self.db.get(Note, id)
 
-    async def filter_note(self, *, title: str | None = None) -> list[Note]:
+    async def get_notes(self) -> list[Note]:
         stmt = select(Note)
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    # add more complexity later
+    async def filter_note(self, *, 
+                          user_id: UUID | None = None, 
+                          title: str | None = None, 
+                          is_public: bool | None = None) -> list[Note]:
+        conditions = []
+        stmt =select(Note)
+        if user_id is not None:
+            # append works because SQL objects overload == expression
+            conditions.append(Note.user_id == user_id)
         if title is not None:
-            stmt = stmt.where(Note.title == title)
+            conditions.append(Note.title == title)
+        if is_public is not None:
+            conditions.append(Note.is_public == is_public)
+        stmt = select(Note).where(*conditions).order_by(Note.date_created.asc(),Note.id.asc())
+        stmt = stmt.order_by(Note.date_created.asc(),Note.id.asc())
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
