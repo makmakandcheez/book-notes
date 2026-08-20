@@ -18,6 +18,7 @@ from app.services.note_service import NoteService
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.repositories.user_repo import UserRepository
+from app.repositories.note_repo import NoteRepository
 from app.main import app
 
 TEST_DATABASE_URL = os.environ["DATABASE_URL"]
@@ -63,6 +64,10 @@ async def client(db) -> AsyncClient: # type: ignore
 @pytest_asyncio.fixture
 async def user_repo(db):
     return UserRepository(db)
+
+@pytest_asyncio.fixture
+async def note_repo(db):
+    return NoteRepository(db)
 
 @pytest_asyncio.fixture
 async def auth_service(db):

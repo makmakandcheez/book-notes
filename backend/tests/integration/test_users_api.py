@@ -4,6 +4,8 @@ from uuid import UUID, uuid4
 
 from app.core.security import decode_access_token
 
+from app.models.note import Note
+
 @pytest.mark.asyncio
 async def test_read_users_me(client, auth_token):
     response = await client.get(
@@ -158,3 +160,30 @@ async def test_get_users_username_param_no_user_found(client, post_10_users):
     response = await client.get("api/v1/users/?username=user11")
     assert response.status_code == 200
     assert response.json() == []
+
+
+@pytest.mark.asyncio
+async def test_get_user_notes(db, client, note_repo, user_repo, post_10_users):
+    user = await user_repo.get_user_by_username("user1")
+    await note_repo.create_note(Note(title="PrivateNote",body="My eyes only",user_id=user.id))
+
+    # have to commit repo session
+    # another option is to just post directly with the client
+    await note_repo.create_note(Note(title="PublicNote",body="Hi everyone!",is_public=True,user_id=user.id))
+    await db.commit()
+
+    notes = await client.get(
+        f"api/v1/notes/"
+    )
+  
+    user_id=notes.json()[0]["user_id"]
+    assert user_id == str(user.id)
+
+    response = await client.get(
+        f"api/v1/users/{user.id}/notes"
+    )
+
+    assert len(response.json()) == 1
+    assert response.json()[0]["title"] == "PublicNote"
+    assert response.json()[0]["body"] == "Hi everyone!"
+
