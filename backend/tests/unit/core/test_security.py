@@ -4,6 +4,7 @@ from app.core.security import (
     verify_password,
     get_password_hash,
     create_access_token,
+    create_jwt_refresh_token,
     decode_access_token
 )
 
@@ -29,6 +30,18 @@ def test_create_and_decode_access_token_with_role():
     assert UUID(decoded_data["sub"]) == user_id
     assert decoded_data["role"] == "user"
     assert "exp" in decoded_data
+
+
+def test_create_and_decode_jwt_refresh_token():
+    user_id = uuid4()
+    data = {"sub": str(user_id)}
+    refresh_token = create_jwt_refresh_token(data)
+    decoded_data = decode_access_token(refresh_token)
+
+    assert UUID(decoded_data["sub"]) == user_id
+    assert "iat" in decoded_data
+    assert "exp" in decoded_data
+    assert "jti" in decoded_data
 
 
 def test_password_hash_and_verify():
