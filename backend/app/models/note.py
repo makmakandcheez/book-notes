@@ -13,12 +13,12 @@ class Note(Base):
 
     id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
     title: Mapped[str] = mapped_column(String(100), nullable=False)
-    body: Mapped[str] = mapped_column(String, nullable=False)
-    is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="False")
+    body: Mapped[str] = mapped_column(String)
+    is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     date_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     date_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("users.id"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False
     )
 
