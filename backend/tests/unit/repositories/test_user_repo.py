@@ -2,6 +2,8 @@ import pytest
 import pytest_asyncio
 
 from app.models.user import User
+from app.models.note import Note
+from app.models.refresh_token import RefreshToken
 from app.repositories.user_repo import UserRepository
 from app.core.security import get_password_hash, verify_password
 
@@ -105,3 +107,41 @@ async def test_get_users_with_large_limit(user_repo):
         "user9",
         "user10"
     ]
+
+@pytest.mark.asyncio
+async def test_delete_user_deletes_on_cascade(user_repo, note_repo, refresh_token_repo):
+    users = [
+        User(username=f"user{i}", email=f"{i}@test.com", hashed_password = get_password_hash("123"))
+        for i in range(1, 4)
+    ]
+    for user in users:
+        await user_repo.create_user(user)
+
+    user1 = await user_repo.get_user_by_username("user1")
+
+    notes = [
+        Note(title=f"Note{i}", body=f"Body{i}", user_id=user1.id, is_public=True)
+        for i in range (1, 5)
+    ]
+    for note in notes:
+        await note_repo.create_note(note)
+
+    user2 = await user_repo.get_user_by_username("user2")
+
+
+    notes_1 = await note_repo.filter_note(user_id=user1.id)
+    notes_2 = await note_repo.filter_note(user_id=user2.id)
+
+    assert [(note.title, note.body) for note in notes_1] == [
+        ("Note1", "Body1"),
+        ("Note2", "Body2"),
+        ("Note3", "Body3"),
+        ("Note4", "Body4")
+    ]
+
+    assert notes_2 == []
+
+    user_id = user1.id
+    await user_repo.delete_user(user1.id)
+    notes_1 = await note_repo.filter_note(user_id=user_id)
+    assert notes_1 == []
