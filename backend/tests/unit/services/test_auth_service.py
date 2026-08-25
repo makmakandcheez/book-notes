@@ -1,8 +1,11 @@
+from uuid import uuid4
+
 import pytest
 import pytest_asyncio
 
-
+from app.core.security import create_jwt_refresh_token
 from app.schemas.user import UserCreate
+from app.services.auth_service import InvalidCredentialsError, InvalidRefreshTokenError
 
 
 @pytest_asyncio.fixture
@@ -45,13 +48,21 @@ async def test_authenticate_user(auth_service, user_data):
 @pytest.mark.asyncio
 async def test_authenticate_wrong_username(auth_service, user_data):
     await auth_service.register(user_data)
-    user = await auth_service.authenticate_user("wrong_name", "1234")
-    assert user is None
+    with pytest.raises(InvalidCredentialsError, match="Incorrect username or password"):
+        await auth_service.authenticate_user("wrong_name", "1234")
 
 
 
 @pytest.mark.asyncio
 async def test_authenticate_wrong_password(auth_service, user_data):
     await auth_service.register(user_data)
-    user = await auth_service.authenticate_user("tester", "wrong_pass")
-    assert user is None
+    with pytest.raises(InvalidCredentialsError, match="Incorrect username or password"):
+        await auth_service.authenticate_user("tester", "wrong_pass")
+
+
+@pytest.mark.asyncio
+async def test_store_refresh_token(auth_service):
+    user_id = uuid4()
+    token_data = create_jwt_refresh_token(user_id)
+    token = await auth_service.store_refresh_token(token_data)
+    assert token and token.user_id == user_id

@@ -139,7 +139,7 @@ async def test_update_note_expired_token(client, auth_token):
     )
     note_id = UUID(response.json()["id"])
     user_id = UUID(decode_access_token(auth_token)["sub"])
-    good_token = create_access_token(data={"sub": str(user_id)})
+    good_token = create_access_token(user_id)
     response = await client.patch(
             f"api/v1/notes/{str(note_id)}",
             headers={
@@ -153,7 +153,7 @@ async def test_update_note_expired_token(client, auth_token):
     assert response.json()["title"] == "Test Note"
     assert response.json()["body"] == "Update body"
 
-    expired_token = create_access_token(data={"sub": str(user_id)}, expires_delta=timedelta(minutes=-1))
+    expired_token = create_access_token(user_id, expires_delta=timedelta(minutes=-1))
     response = await client.patch(
             f"api/v1/notes/{str(note_id)}",
             headers={
