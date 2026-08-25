@@ -1,70 +1,94 @@
 -- BOOKS
 -- CREATE TABLE books (
---     bk_id SERIAL PRIMARY KEY,
---     bk_title VARCHAR(255) NOT NULL,
---     bk_author VARCHAR(100) NOT NULL,
+--     id SERIAL PRIMARY KEY,
+--     title VARCHAR(255) NOT NULL,
+--     author VARCHAR(100) NOT NULL,
 --     bk_date_published DATE,
---     bk_rating NUMERIC(3,2),
+--     rating NUMERIC(3,2),
 --     bk_img_url TEXT
 -- );
 CREATE TABLE users (
-    usr_id SERIAL PRIMARY KEY,
-    usr_username VARCHAR(255) UNIQUE NOT NULL,
-    usr_email  VARCHAR(255) UNIQUE NOT NULL,
-    usr_hashed_password VARCHAR(255)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email  VARCHAR(255) UNIQUE NOT NULL,
+    hashed_password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW() 
 );
+
+CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_users_email ON users (email);
 
 
 CREATE TABLE books (
-    bk_id SERIAL PRIMARY KEY,
-    bk_title VARCHAR(255) NOT NULL,
-    bk_author VARCHAR(100) NOT NULL,
-    bk_rating NUMERIC(3,2)
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    rating NUMERIC(3,2)
 );
 
 
 -- NOTES
 CREATE TABLE notes (
-    nt_id SERIAL PRIMARY KEY,
-    nt_title VARCHAR(100) NOT NULL,
-    nt_body TEXT NOT NULL,
-    nt_date_created TIMESTAMP NOT NULL DEFAULT NOW(),
-    nt_date_updated TIMESTAMP NOT NULL DEFAULT NOW()
-);
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(100) NOT NULL,
+    body VARCHAR NOT NULL,
+    is_public BOOLEAN NOT NULL DEFAULT FALSE,
+    date_created TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    date_updated TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    user_id UUID NOT NULL,
 
-
--- BOOKSNOTES (Join Table)
-CREATE TABLE books_notes (
-    bk_id INTEGER NOT NULL,
-    nt_id INTEGER NOT NULL,
-    PRIMARY KEY (bk_id, nt_id),
-
-    FOREIGN KEY (bk_id)
-        REFERENCES books(bk_id)
-        ON DELETE CASCADE,
-
-    FOREIGN KEY (nt_id)
-        REFERENCES notes(nt_id)
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
         ON DELETE CASCADE
 );
 
 
+-- REFRESH-TOKENS
+CREATE TABLE refresh_tokens (
+    jti UUID PRIMARY KEY,
+    user_id UUID NOT NULL,
+    token_hash VARCHAR NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    revoked BOOLEAN NOT NULL DEFAULT FALSE,
+
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+
+-- BOOKSNOTES (Join Table)
+-- CREATE TABLE books_notes (
+--     book_id INTEGER NOT NULL,
+--     note_id INTEGER NOT NULL,
+--     PRIMARY KEY (book_id, note_id),
+
+--     FOREIGN KEY (book_id)
+--         REFERENCES books(id)
+--         ON DELETE CASCADE,
+
+--     FOREIGN KEY (note_id)
+--         REFERENCES notes(id)
+--         ON DELETE CASCADE
+-- );
+
+
 -- INDEXES
 -- USERS indexes
-CREATE INDEX IF NOT EXISTS idx_users_email ON users (usr_email);
-CREATE INDEX IF NOT EXISTS idx_users_username ON users (usr_username);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
 
 -- BOOKS indexes
-CREATE INDEX IF NOT EXISTS idx_books_title ON books (bk_title);
-CREATE INDEX IF NOT EXISTS idx_books_author ON books (bk_author);
+CREATE INDEX IF NOT EXISTS idx_books_title ON books (title);
+CREATE INDEX IF NOT EXISTS idx_books_author ON books (author);
 -- CREATE INDEX IF NOT EXISTS idx_books_date_published ON books (bk_date_published);
-CREATE INDEX IF NOT EXISTS idx_books_rating ON books (bk_rating);
+CREATE INDEX IF NOT EXISTS idx_books_rating ON books (rating);
 
 -- NOTES indexes
-CREATE INDEX idx_notes_title ON notes (nt_title);
-CREATE INDEX idx_notes_date_created ON notes (nt_date_created);
-CREATE INDEX idx_notes_date_updated ON notes (nt_date_updated);
+CREATE INDEX idx_notes_title ON notes (title);
+CREATE INDEX idx_notes_date_created ON notes (date_created);
+CREATE INDEX idx_notes_date_updated ON notes (date_updated);
 
 -- BOOKSNOTES indexes
-CREATE INDEX idx_booksnotes_book_id ON books_notes (bk_id);
-CREATE INDEX idx_booksnotes_note_id ON books_notes (nt_id);
+-- CREATE INDEX idx_booksnotes_book_id ON books_notes (book_id);
+-- CREATE INDEX idx_booksnotes_note_id ON books_notes (note_id);
