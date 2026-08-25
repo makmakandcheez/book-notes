@@ -50,11 +50,16 @@ def get_user_service(repo: UserRepositoryDep) -> UserService:
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
-
+from app.repositories.refresh_token_repo import RefreshTokenRepository
 from app.services.auth_service import AuthService
 
-def get_auth_service(repo: UserRepositoryDep) -> AuthService:
-    return AuthService(repo)
+def get_refresh_token_repositoory(db: DbSession) -> RefreshTokenRepository:
+    return RefreshTokenRepository(db)
+
+RefreshTokenRepoDep = Annotated[RefreshTokenRepository, Depends(get_refresh_token_repositoory)]
+
+def get_auth_service(user_repo: UserRepositoryDep, token_repo: RefreshTokenRepoDep) -> AuthService:
+    return AuthService(user_repo=user_repo, token_repo=token_repo)
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 
@@ -73,7 +78,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 async def get_current_user(
         token: Annotated[str, Depends(oauth2_scheme)],
-        user_service: UserServiceDep
+        auth_service: AuthServiceDep
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -81,16 +86,8 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = decode_access_token(token)
-        user_id = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-        user_id = UUID(user_id)
-    except (InvalidTokenError, ValueError, TypeError):
-        raise credentials_exception
-
-    user = await user_service.get_user_by_id(user_id)
-    if user is None:
+        user = await auth_service.authenticate_user_from_token(token)
+    except (InvalidTokenError):
         raise credentials_exception
     return user
 
