@@ -19,6 +19,7 @@ from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.repositories.user_repo import UserRepository
 from app.repositories.note_repo import NoteRepository
+from app.repositories.refresh_token_repo import RefreshTokenRepository
 from app.main import app
 
 TEST_DATABASE_URL = os.environ["DATABASE_URL"]
@@ -70,9 +71,14 @@ async def note_repo(db):
     return NoteRepository(db)
 
 @pytest_asyncio.fixture
+async def refresh_token_repo(db):
+    return RefreshTokenRepository
+
+@pytest_asyncio.fixture
 async def auth_service(db):
-    repo = UserRepository(db)
-    return AuthService(repo)
+    user_repo = UserRepository(db)
+    rt_repo = RefreshTokenRepository(db)
+    return AuthService(user_repo=user_repo, token_repo=rt_repo)
 
 @pytest_asyncio.fixture
 async def user_service(db):
