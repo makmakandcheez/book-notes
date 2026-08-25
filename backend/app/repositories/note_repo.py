@@ -33,8 +33,8 @@ class NoteRepository:
             conditions.append(Note.title == title)
         if is_public is not None:
             conditions.append(Note.is_public == is_public)
-        stmt = select(Note).where(*conditions).order_by(Note.date_created.asc(),Note.id.asc())
-        stmt = stmt.order_by(Note.date_created.asc(),Note.id.asc())
+        stmt = select(Note).where(*conditions)
+        stmt = stmt.order_by(Note.date_created.asc(),Note.title,Note.id.asc())
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
