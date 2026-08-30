@@ -1,37 +1,37 @@
 # from passlib.context import CryptContext
-from datetime import datetime, UTC
 from uuid import UUID
 
-from app.core.config import settings
 from app.core.security import (
-    DUMMY_HASH, 
+    DUMMY_HASH,
     RefreshTokenData,
     TokenPair,
-    verify_password, 
-    get_password_hash, 
-    hash_refresh_token,
     create_access_token,
     create_jwt_refresh_token,
     decode_access_token,
-    decode_refresh_token
+    decode_refresh_token,
+    get_password_hash,
+    hash_refresh_token,
+    verify_password,
 )
-
-from app.schemas.user import UserCreate
-from app.models.user import User
 from app.models.refresh_token import RefreshToken
-from app.repositories.user_repo import UserRepository
+from app.models.user import User
 from app.repositories.refresh_token_repo import RefreshTokenRepository
+from app.repositories.user_repo import UserRepository
+from app.schemas.user import UserCreate
 
 
-class InvalidCredentialsError(Exception): pass
-class InvalidRefreshTokenError(Exception): pass
-class UserNotFoundError(Exception): pass
+class InvalidCredentialsError(Exception):
+    pass
+class InvalidRefreshTokenError(Exception):
+    pass
+class UserNotFoundError(Exception):
+    pass
 
 class AuthService:
     def __init__(self, user_repo: UserRepository, token_repo: RefreshTokenRepository) -> None:
         self.user_repo = user_repo
         self.token_repo = token_repo
-   
+
 
     async def register(self, data: UserCreate) -> User:
         email = await self.user_repo.get_user_by_email(data.email)
@@ -48,7 +48,8 @@ class AuthService:
         return await self.user_repo.create_user(user)
 
     async def authenticate_user_from_token(self, token: str) -> User:
-        payload = decode_access_token(token) # raises jwt.InvalidTokenError if expired, or if signature not valid
+        # raises jwt.InvalidTokenError if expired, or if signature not valid
+        payload = decode_access_token(token)
         user_id = UUID(payload.get("sub"))
         user = await self.user_repo.get_user_by_id(user_id)
         if user is None:
@@ -89,7 +90,7 @@ class AuthService:
         # raises error if exp invalid
         payload = decode_refresh_token(rt)
         token = await self.token_repo.get_refresh_token_by_jti(UUID(payload["jti"]))
-        if not token or token.revoked==True:
+        if not token or token.revoked:
             raise InvalidRefreshTokenError("Invalid refresh token")
         await self.token_repo.revoke_refresh_token(token)
         new_access = create_access_token(token.user_id)

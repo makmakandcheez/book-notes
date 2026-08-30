@@ -1,16 +1,17 @@
 import pytest
-import pytest_asyncio
 
-from app.models.user import User
-from app.models.note import Note
-from app.models.refresh_token import RefreshToken
-from app.repositories.user_repo import UserRepository
 from app.core.security import get_password_hash, verify_password
+from app.models.note import Note
+from app.models.user import User
 
 
 @pytest.mark.asyncio
 async def test_create_user(user_repo):
-    data = User(username="John", email="test@test.com", hashed_password=get_password_hash("123"))
+    data = User(
+        username="John",
+        email="test@test.com",
+        hashed_password=get_password_hash("123")
+        )
     user = await user_repo.create_user(data)
     assert user.username == "John"
     assert user.email == "test@test.com"
@@ -23,7 +24,7 @@ async def test_create_user_unique_uuid(user_repo):
     user = await user_repo.create_user(data)
     uuid_1 = user.id
 
-    data = User(username="Guy", email="example@test.com", hashed_password = get_password_hash("123"))
+    data = User(username="Guy", email="test2@test.com", hashed_password = get_password_hash("123"))
     user = await user_repo.create_user(data)
 
     assert user.id != uuid_1
@@ -47,7 +48,7 @@ async def test_get_users(user_repo):
         "user4",
         "user5"
     ]
-    assert ("user6" or "user7" or "user8" or "user9" or "user10") not in result
+    assert ("user6" and "user7" and "user8" and "user9" and "user10") not in result
 
 
 @pytest.mark.asyncio
@@ -68,7 +69,7 @@ async def test_get_users_with_offset(user_repo):
         "user9",
         "user10"
     ]
-    assert ("user1" or "user2" or "user3" or "user4" or "user5") not in result
+    assert ("user1" and "user2" and "user3" and "user4" and "user5") not in result
 
 
 @pytest.mark.asyncio

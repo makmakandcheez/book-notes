@@ -1,16 +1,13 @@
 from typing import Annotated
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from jwt import InvalidTokenError
 
-from fastapi import HTTPException, APIRouter, Depends, status
-from fastapi.security import OAuth2PasswordRequestForm
-
 from app.api.v1.dependencies import AuthServiceDep
-from app.services.auth_service import InvalidCredentialsError, InvalidRefreshTokenError
-
+from app.schemas.auth import RefreshTokenRequest, TokenResponse
 from app.schemas.user import UserCreate, UserPublic
-from app.schemas.auth import TokenResponse, RefreshTokenRequest
-
+from app.services.auth_service import InvalidCredentialsError, InvalidRefreshTokenError
 
 router = APIRouter(
     prefix="/auth",
@@ -43,11 +40,10 @@ async def login_for_access_token(
         ) from e
     response = TokenResponse(
         access_token=tokens.access_token,
-        refresh_token=tokens.refresh_token,
-        token_type="bearer"
+        refresh_token=tokens.refresh_token
     )
     return TokenResponse.model_validate(response)
-        
+
 
 @router.post("/refresh-token", response_model=TokenResponse)
 async def refresh(
@@ -64,7 +60,6 @@ async def refresh(
         ) from e
     response = TokenResponse(
         access_token=tokens.access_token,
-        refresh_token=tokens.refresh_token,
-        token_type="bearer"
+        refresh_token=tokens.refresh_token
     )
     return TokenResponse.model_validate(response)

@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from app.models.note import Note
 from app.repositories.note_repo import NoteRepository
 from app.schemas.note import NoteCreate, NoteUpdate

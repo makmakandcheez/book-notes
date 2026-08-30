@@ -1,11 +1,10 @@
 from uuid import UUID
-from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func
 
 from app.models.note import Note
+
 
 class NoteRepository:
     def __init__(self, db: AsyncSession) -> None:
@@ -20,9 +19,9 @@ class NoteRepository:
         return list(result.scalars().all())
 
     # add more complexity later
-    async def filter_note(self, *, 
-                          user_id: UUID | None = None, 
-                          title: str | None = None, 
+    async def filter_note(self, *,
+                          user_id: UUID | None = None,
+                          title: str | None = None,
                           is_public: bool | None = None) -> list[Note]:
         conditions = []
         stmt =select(Note)
@@ -57,4 +56,3 @@ class NoteRepository:
             await self.db.delete(note)
             await self.db.flush()
         return note
-    

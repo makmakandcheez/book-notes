@@ -5,7 +5,7 @@ import pytest_asyncio
 
 from app.core.security import create_jwt_refresh_token
 from app.schemas.user import UserCreate
-from app.services.auth_service import InvalidCredentialsError, InvalidRefreshTokenError
+from app.services.auth_service import InvalidCredentialsError
 
 
 @pytest_asyncio.fixture

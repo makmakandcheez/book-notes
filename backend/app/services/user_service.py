@@ -1,5 +1,6 @@
 # Things that manipulate an existing user.
 from uuid import UUID
+
 from app.models.user import User
 from app.repositories.user_repo import UserRepository
 from app.schemas.user import UserUpdate

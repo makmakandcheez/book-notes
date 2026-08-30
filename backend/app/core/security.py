@@ -1,12 +1,12 @@
+import hashlib
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
-from dataclasses import dataclass
 from uuid import UUID, uuid4
 
 import jwt
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
-import hashlib
 
 from app.core.config import settings
 
@@ -42,7 +42,7 @@ def hash_refresh_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def create_access_token(user_id: UUID, expires_delta: timedelta | None = None) -> str: 
+def create_access_token(user_id: UUID, expires_delta: timedelta | None = None) -> str:
     jti = uuid4()
     issued_at = datetime.now(UTC)
     expire = issued_at + (
@@ -56,11 +56,18 @@ def create_access_token(user_id: UUID, expires_delta: timedelta | None = None) -
             "type": "access"
         }
 
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key.get_secret_value(), algorithm=settings.jwt_algorithm)
+    encoded_jwt = jwt.encode(
+        to_encode,
+        settings.secret_key.get_secret_value(),
+        algorithm=settings.jwt_algorithm
+    )
     return encoded_jwt
 
 
-def create_jwt_refresh_token(user_id: UUID, expires_delta: timedelta | None = None) -> RefreshTokenData:
+def create_jwt_refresh_token(
+        user_id: UUID,
+        expires_delta: timedelta | None = None
+    ) -> RefreshTokenData:
     jti = uuid4()
     issued_at = datetime.now(UTC)
     expire = issued_at + (
@@ -74,7 +81,11 @@ def create_jwt_refresh_token(user_id: UUID, expires_delta: timedelta | None = No
             "exp": expire,
             "type": "refresh"
         }
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key.get_secret_value(), algorithm=settings.jwt_algorithm)
+    encoded_jwt = jwt.encode(
+        to_encode,
+        settings.secret_key.get_secret_value(),
+        algorithm=settings.jwt_algorithm
+    )
     return RefreshTokenData(
         user_id=user_id,
         token=encoded_jwt,
@@ -85,8 +96,8 @@ def create_jwt_refresh_token(user_id: UUID, expires_delta: timedelta | None = No
 
 def decode_access_token(token: str) -> dict[str, Any]:
     data = jwt.decode(
-        token, 
-        settings.secret_key.get_secret_value(), 
+        token,
+        settings.secret_key.get_secret_value(),
         algorithms=[settings.jwt_algorithm],
         options=jwt.types.Options(
             require=["sub", "jti", "type", "exp", "iat"]
@@ -100,8 +111,8 @@ def decode_access_token(token: str) -> dict[str, Any]:
 def decode_refresh_token(token: str)-> dict[str, Any]:
     # reference: https://pyjwt.readthedocs.io/en/latest/api.html#jwt.decode
     data = jwt.decode(
-        token, 
-        settings.secret_key.get_secret_value(), 
+        token,
+        settings.secret_key.get_secret_value(),
         algorithms=[settings.jwt_algorithm],
         options=jwt.types.Options(
             require=["sub", "jti", "type", "exp", "iat"]
@@ -109,4 +120,4 @@ def decode_refresh_token(token: str)-> dict[str, Any]:
     )
     if data["type"] != "refresh":
         raise InvalidTokenError
-    return data 
+    return data

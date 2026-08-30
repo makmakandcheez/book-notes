@@ -1,6 +1,8 @@
 from datetime import timedelta
-from uuid import UUID, uuid4
+from uuid import UUID
+
 import pytest
+
 from app.core.security import create_access_token, decode_access_token
 
 
@@ -37,7 +39,7 @@ async def test_update_note(client, auth_token):
     note_id = UUID(response.json()["id"])
 
     response = await client.patch(
-        f"api/v1/notes/{str(note_id)}",
+        f"api/v1/notes/{note_id!s}",
         headers={
             "Authorization": f"Bearer {auth_token}"
         },
@@ -68,7 +70,7 @@ async def test_update_note_no_token(client, auth_token):
 
     note_id = UUID(response.json()["id"])
     response = await client.patch(
-            f"api/v1/notes/{str(note_id)}",
+            f"api/v1/notes/{note_id!s}",
             json={
                 "body": "Update body"
             }
@@ -79,7 +81,7 @@ async def test_update_note_no_token(client, auth_token):
 
 
     response = await client.get(
-        f"api/v1/notes/{str(note_id)}"
+        f"api/v1/notes/{note_id!s}"
     )
 
     note = response.json()
@@ -103,7 +105,7 @@ async def test_update_note_wrong_token(client, auth_token):
 
     note_id = UUID(response.json()["id"])
     response = await client.patch(
-            f"api/v1/notes/{str(note_id)}",
+            f"api/v1/notes/{note_id!s}",
             headers={
                 "Authorization": "Bearer wrong-token"
             },
@@ -117,7 +119,7 @@ async def test_update_note_wrong_token(client, auth_token):
 
 
     response = await client.get(
-        f"api/v1/notes/{str(note_id)}"
+        f"api/v1/notes/{note_id!s}"
     )
 
     note = response.json()
@@ -141,7 +143,7 @@ async def test_update_note_expired_token(client, auth_token):
     user_id = UUID(decode_access_token(auth_token)["sub"])
     good_token = create_access_token(user_id)
     response = await client.patch(
-            f"api/v1/notes/{str(note_id)}",
+            f"api/v1/notes/{note_id!s}",
             headers={
                 "Authorization": f"Bearer {good_token}"
             },
@@ -155,7 +157,7 @@ async def test_update_note_expired_token(client, auth_token):
 
     expired_token = create_access_token(user_id, expires_delta=timedelta(minutes=-1))
     response = await client.patch(
-            f"api/v1/notes/{str(note_id)}",
+            f"api/v1/notes/{note_id!s}",
             headers={
                 "Authorization": f"Bearer {expired_token}"
             },
@@ -166,7 +168,7 @@ async def test_update_note_expired_token(client, auth_token):
     assert response.status_code == 401
 
     response = await client.get(
-        f"api/v1/notes/{str(note_id)}"
+        f"api/v1/notes/{note_id!s}"
     )
 
     assert response.json()["title"] == "Test Note"

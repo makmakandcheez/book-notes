@@ -6,7 +6,6 @@ from app.schemas.note import NoteCreate, NoteUpdate
 from app.services.note_service import NoteService
 
 
-
 @pytest_asyncio.fixture
 async def note_service(db):
     repo = NoteRepository(db)

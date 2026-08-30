@@ -1,10 +1,9 @@
-from typing import Annotated
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, Depends
 
-from app.api.v1.dependencies import NoteServiceDep, CurrentUserDep
+from fastapi import APIRouter, HTTPException
+
+from app.api.v1.dependencies import CurrentUserDep, NoteServiceDep
 from app.schemas.note import NoteCreate, NoteResponse, NoteUpdate
-from app.models.user import User
 
 router = APIRouter(
     prefix="/notes",
@@ -22,8 +21,8 @@ async def get_notes(
 
 @router.post("/", response_model=NoteResponse, status_code=201)
 async def create_note(
-    data: NoteCreate, 
-    service: NoteServiceDep, 
+    data: NoteCreate,
+    service: NoteServiceDep,
     current_user: CurrentUserDep
 ) -> NoteResponse:
     try:
@@ -45,7 +44,7 @@ async def get_note(id: UUID, service: NoteServiceDep) -> NoteResponse:
 @router.patch("/{id}", response_model=NoteResponse)
 async def update_note(
     id: UUID,
-    data: NoteUpdate, 
+    data: NoteUpdate,
     service: NoteServiceDep,
     current_user: CurrentUserDep
 ) -> NoteResponse:
@@ -58,7 +57,7 @@ async def update_note(
 
 @router.delete("/{id}", response_model=NoteResponse)
 async def delete_note(
-    id: UUID, 
+    id: UUID,
     service: NoteServiceDep
     ) -> NoteResponse:
     note = await service.delete_note(id)

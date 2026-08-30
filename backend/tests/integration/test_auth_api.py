@@ -1,7 +1,9 @@
+from uuid import UUID
+
 import pytest
 
-from uuid import UUID
 from app.core.security import decode_access_token, decode_refresh_token
+
 
 @pytest.mark.asyncio
 async def test_register_user(client):
@@ -15,7 +17,7 @@ async def test_register_user(client):
     )
     assert response.status_code == 201
     data = response.json()
-    assert data["username"] == "Johnny" 
+    assert data["username"] == "Johnny"
 
 
 @pytest.mark.asyncio
@@ -75,5 +77,5 @@ async def test_refresh(client):
     assert new_rt != rt
     # more thngs to assert
 
-    
+
 

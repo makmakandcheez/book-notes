@@ -5,22 +5,16 @@ os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./tests/test.db")
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import (
-    AsyncSession, 
-    async_sessionmaker, 
-    create_async_engine
-)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.core.security import decode_access_token
 from app.core.database import Base, get_db
-from app.schemas.user import UserCreate
-from app.services.note_service import NoteService
-from app.services.auth_service import AuthService
-from app.services.user_service import UserService
-from app.repositories.user_repo import UserRepository
+from app.main import app
 from app.repositories.note_repo import NoteRepository
 from app.repositories.refresh_token_repo import RefreshTokenRepository
-from app.main import app
+from app.repositories.user_repo import UserRepository
+from app.schemas.user import UserCreate
+from app.services.auth_service import AuthService
+from app.services.user_service import UserService
 
 TEST_DATABASE_URL = os.environ["DATABASE_URL"]
 engine = create_async_engine(TEST_DATABASE_URL)
@@ -115,4 +109,3 @@ async def auth_token(client):
 
     return response.json()["access_token"]
 
-       

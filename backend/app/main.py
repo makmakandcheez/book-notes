@@ -1,5 +1,6 @@
-from fastapi import FastAPI, APIRouter
-from app.api.v1.endpoints import books, notes, users, auth
+from fastapi import FastAPI
+
+from app.api.v1.endpoints import auth, books, notes, users
 
 app = FastAPI(root_path="/api/v1")
 

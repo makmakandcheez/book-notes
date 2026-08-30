@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     app_name: str = "Book Notes"

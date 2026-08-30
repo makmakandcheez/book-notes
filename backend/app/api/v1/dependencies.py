@@ -1,12 +1,20 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt.exceptions import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models.user import User
 from app.repositories.book_repo import BookRepository
+from app.repositories.note_repo import NoteRepository
+from app.repositories.refresh_token_repo import RefreshTokenRepository
+from app.repositories.user_repo import UserRepository
+from app.services.auth_service import AuthService
 from app.services.book_service import BookService
+from app.services.note_service import NoteService
+from app.services.user_service import UserService
 
 # Database
 DbSession = Annotated[AsyncSession, Depends(get_db)]
@@ -23,9 +31,6 @@ def get_book_service(repo: BookRepositoryDep) -> BookService:
 BookServiceDep = Annotated[BookService, Depends(get_book_service)]
 
 
-from app.repositories.note_repo import NoteRepository
-from app.services.note_service import NoteService
-
 def get_note_repository(db: DbSession) -> NoteRepository:
     return NoteRepository(db)
 
@@ -37,9 +42,6 @@ def get_note_service(repo: NoteRepositoryDep) -> NoteService:
 NoteServiceDep = Annotated[NoteService, Depends(get_note_service)]
 
 
-from app.repositories.user_repo import UserRepository
-from app.services.user_service import UserService
-
 def get_user_repository(db: DbSession) -> UserRepository:
     return UserRepository(db)
 
@@ -50,8 +52,6 @@ def get_user_service(repo: UserRepositoryDep) -> UserService:
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
-from app.repositories.refresh_token_repo import RefreshTokenRepository
-from app.services.auth_service import AuthService
 
 def get_refresh_token_repositoory(db: DbSession) -> RefreshTokenRepository:
     return RefreshTokenRepository(db)
@@ -65,12 +65,6 @@ AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 
 
 ### Authorization
-from uuid import UUID
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import HTTPException, status
-from jwt.exceptions import InvalidTokenError
-from app.core.security import decode_access_token
-from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/token"
@@ -87,8 +81,8 @@ async def get_current_user(
     )
     try:
         user = await auth_service.authenticate_user_from_token(token)
-    except (InvalidTokenError):
-        raise credentials_exception
+    except (InvalidTokenError) as e:
+        raise credentials_exception from e
     return user
 
 

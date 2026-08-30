@@ -1,11 +1,11 @@
 from typing import Annotated
 from uuid import UUID
+
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.api.v1.dependencies import UserServiceDep, CurrentUserDep, NoteServiceDep
-from app.models.user import User
-from app.schemas.user import UserPublic, UserUpdate
+from app.api.v1.dependencies import CurrentUserDep, NoteServiceDep, UserServiceDep
 from app.schemas.note import NoteResponse
+from app.schemas.user import UserPublic, UserUpdate
 
 router = APIRouter(
     prefix="/users",
@@ -62,15 +62,16 @@ async def update_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return UserPublic.model_validate(user)   
+    return UserPublic.model_validate(user)
 
 
 
 
-# Setting status_code=204 is good if no content, but I do want to return the deleted user, so it stays 200.
+# Setting status_code=204 is good if no content,
+# but I do want to return the deleted user, so it stays 200.
 @router.delete("/{id}", response_model=UserPublic)
 async def delete_user(
-    id: UUID, 
+    id: UUID,
     service: UserServiceDep,
     current_user: CurrentUserDep
 ) -> UserPublic:
@@ -82,4 +83,4 @@ async def delete_user(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
-    
+

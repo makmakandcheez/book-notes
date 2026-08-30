@@ -1,13 +1,18 @@
 from __future__ import annotations
-from uuid import UUID, uuid4
+
 from datetime import datetime
+from typing import TYPE_CHECKING
+from uuid import UUID, uuid4
 
-from sqlalchemy import String, Boolean, DateTime, ForeignKey, UUID as PG_UUID
-from sqlalchemy.sql import func
+from sqlalchemy import UUID as PG_UUID
+from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-# from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
+# from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class RefreshToken(Base):
@@ -22,5 +27,5 @@ class RefreshToken(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    user: Mapped["User"] = relationship(back_populates="refresh_tokens")
+    user: Mapped[User] = relationship(back_populates="refresh_tokens")
 

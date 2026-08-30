@@ -1,18 +1,19 @@
-from uuid import uuid4, UUID
-import pytest
-
 from datetime import timedelta
+from uuid import UUID, uuid4
+
+import pytest
 from jwt import InvalidTokenError
 
 from app.core.security import (
-    verify_password,
-    get_password_hash,
-    hash_refresh_token,
     create_access_token,
     create_jwt_refresh_token,
     decode_access_token,
-    decode_refresh_token
+    decode_refresh_token,
+    get_password_hash,
+    hash_refresh_token,
+    verify_password,
 )
+
 
 def test_create_and_decode_access_token():
     user_id = uuid4()

@@ -1,10 +1,11 @@
+from uuid import uuid4
+
 import pytest
 import pytest_asyncio
-from uuid import UUID, uuid4
 
 from app.core.security import decode_access_token
-
 from app.models.note import Note
+
 
 @pytest.mark.asyncio
 async def test_read_users_me(client, auth_token):
@@ -18,7 +19,7 @@ async def test_read_users_me(client, auth_token):
     assert response.status_code == 200
     user = response.json()
     assert user["id"] == decode_access_token(auth_token)["sub"]
-    assert user["username"] == "Johnny" 
+    assert user["username"] == "Johnny"
 
 
 @pytest.mark.asyncio
@@ -30,7 +31,7 @@ async def test_get_user(client, auth_token):
 
     assert response.status_code == 200
     assert response.json()["id"] == user_id
-    assert response.json()["username"] == "Johnny" 
+    assert response.json()["username"] == "Johnny"
 
 
 
@@ -42,7 +43,7 @@ async def test_get_user_wrong_id(client):
     )
     assert response.status_code == 404
     assert response.json()["detail"] == "User not found"
-    
+
 
 @pytest.mark.asyncio
 async def test_delete_user(client, auth_token):
@@ -112,12 +113,17 @@ async def test_get_users(client, post_10_users):
     response = await client.get(
         "api/v1/users/"
     )
-  
+
     assert response.status_code == 200
     assert [user["username"] for user in response.json()] == [
         "user1", "user2", "user3", "user4", "user5"
     ]
-    assert ("user6" or "user7" or "user8" or "user9" or "user10") not in [user["username"] for user in response.json()]
+    assert ("user6" and
+            "user7" and
+            "user8" and
+            "user9" and
+            "user10"
+            ) not in [user["username"] for user in response.json()]
 
 
 @pytest.mark.asyncio
@@ -169,13 +175,20 @@ async def test_get_user_notes(db, client, note_repo, user_repo, post_10_users):
 
     # have to commit repo session
     # another option is to just post directly with the client
-    await note_repo.create_note(Note(title="PublicNote",body="Hi everyone!",is_public=True,user_id=user.id))
+    await note_repo.create_note(
+        Note(
+            title="PublicNote",
+            body="Hi everyone!",
+            is_public=True,
+            user_id=user.id
+            )
+        )
     await db.commit()
 
     notes = await client.get(
-        f"api/v1/notes/"
+        "api/v1/notes/"
     )
-  
+
     user_id=notes.json()[0]["user_id"]
     assert user_id == str(user.id)
 

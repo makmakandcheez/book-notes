@@ -4,7 +4,6 @@ from app.core.security import get_password_hash
 from app.models.user import User
 
 
-
 @pytest.mark.asyncio
 async def test_get_users(user_service, user_repo):
     users = [
@@ -23,7 +22,7 @@ async def test_get_users(user_service, user_repo):
         "user4",
         "user5"
     ]
-    assert ("user6" or "user7" or "user8" or "user9" or "user10") not in result
+    assert ("user6" and "user7" and "user8" and "user9" and "user10") not in result
 
 
 @pytest.mark.asyncio
@@ -44,7 +43,7 @@ async def test_get_users_page_2(user_service, user_repo):
             "user9",
             "user10"
         ]
-    assert ("user1" or "user2" or "user3" or "user4" or "user5") not in result
+    assert ("user1" and "user2" and "user3" and "user4" and "user5") not in result
 
 
 @pytest.mark.asyncio

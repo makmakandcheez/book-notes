@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 # the request body for creating a book
 class BookCreate(BaseModel):
     title: str

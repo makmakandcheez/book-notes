@@ -1,13 +1,20 @@
 from __future__ import annotations
-from uuid import UUID, uuid4
+
 from datetime import datetime
+from typing import TYPE_CHECKING
+from uuid import UUID, uuid4
 
-from sqlalchemy import String, DateTime, UUID as PG_UUID
-from sqlalchemy.sql import func
+from sqlalchemy import UUID as PG_UUID
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-# from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.sql import func
 
+# from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.models.note import Note
+    from app.models.refresh_token import RefreshToken
 
 
 class User(Base):
@@ -17,13 +24,17 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+                                        DateTime(timezone=True),
+                                        server_default=func.now(),
+                                        nullable=False
+                                    )
 
-    notes: Mapped[list["Note"]] = relationship(
+    notes: Mapped[list[Note]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan"
         )
-    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+    refresh_tokens: Mapped[list[RefreshToken]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan"
         )
