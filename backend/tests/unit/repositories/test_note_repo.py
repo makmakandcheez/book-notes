@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 import pytest
 
 from app.models.note import Note
@@ -7,12 +5,14 @@ from app.models.user import User
 
 
 @pytest.mark.asyncio
-async def test_create_note(note_repo):
-    userid = uuid4()
-    note = await note_repo.create_note(
-        Note(title="Title", body="Body", is_public=True, user_id=userid)
+async def test_create_note(note_repo, user_repo):
+    user = await user_repo.create_user(
+        User(username="John", email="test@test.com", hashed_password="123")
     )
-    assert note.user_id == userid
+    note = await note_repo.create_note(
+        Note(title="Title", body="Body", is_public=True, user_id=user.id)
+    )
+    assert note.user_id == user.id
     assert note.title == "Title"
     assert note.is_public
 
