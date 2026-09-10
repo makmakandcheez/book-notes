@@ -21,9 +21,7 @@ async def create_book(data: BookCreate, service: BookServiceDep) -> BookResponse
 
 @router.get("/", response_model=list[BookResponse])
 async def get_books(
-    service: BookServiceDep,
-    title: str | None = None,
-    author: str | None = None
+    service: BookServiceDep, title: str | None = None, author: str | None = None
 ) -> list[BookResponse]:
     books = await service.filter_books(title=title, author=author)
     return [BookResponse.model_validate(b) for b in books]
@@ -33,10 +31,11 @@ async def get_books(
 async def get_book(id: int, service: BookServiceDep):
     return await service.get_by_id(id)
 
+
 @router.put("/{id}")
 async def update_book(id: int):
-    return {"message": "Works!",
-            "id": id}
+    return {"message": "Works!", "id": id}
+
 
 @router.delete("/{id}", response_model=BookResponse)
 async def delete_book(id: int, service: BookServiceDep):
@@ -44,5 +43,6 @@ async def delete_book(id: int, service: BookServiceDep):
     if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     return book
+
 
 # Maybe more?

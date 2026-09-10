@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +26,9 @@ class UserRepository:
         await self.db.flush()
         return user
 
-    async def get_users(self, offset: int, limit: int, *, username: str | None = None) -> list[User]:
+    async def get_users(
+        self, offset: int, limit: int, *, username: str | None = None
+    ) -> list[User]:
         stmt = select(User)
         if username:
             stmt = stmt.where(User.username == username)
@@ -48,9 +51,6 @@ class UserRepository:
             await self.db.flush()
             await self.db.refresh(user)
         return user
-
-
-
 
     async def delete_user(self, id: UUID) -> User:
         user = await self.get_user_by_id(id)

@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     app_name: str = "Book Notes"
@@ -12,8 +13,6 @@ class Settings(BaseSettings):
     cors_origins: list[str] = []
 
     # model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
-
-
 
 
 settings = Settings()
