@@ -25,16 +25,10 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-                                        DateTime(timezone=True),
-                                        server_default=func.now(),
-                                        nullable=False
-                                    )
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
-    notes: Mapped[list[Note]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan"
-        )
+    notes: Mapped[list[Note]] = relationship(back_populates="user", cascade="all, delete-orphan")
     refresh_tokens: Mapped[list[RefreshToken]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan"
-        )
+        back_populates="user", cascade="all, delete-orphan"
+    )

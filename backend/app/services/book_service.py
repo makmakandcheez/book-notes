@@ -8,11 +8,7 @@ class BookService:
         self.repo = repo
 
     async def add_book(self, data: BookCreate) -> Book:
-        book = Book(
-            title=data.title,
-            author=data.author,
-            rating=data.rating
-        )
+        book = Book(title=data.title, author=data.author, rating=data.rating)
         return await self.repo.create(book)
 
     async def filter_books(self, title: str | None = None, author: str | None = None) -> list[Book]:

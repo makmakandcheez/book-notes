@@ -14,17 +14,10 @@ from app.services.auth_service import UserNotFoundError
 @pytest.mark.asyncio
 async def test_get_current_user(user_repo, auth_service):
     user = await user_repo.create_user(
-        User(
-            username="Johnny",
-            email="1@test.com",
-            hashed_password="123"
-            )
-        )
-    token = create_access_token(user.id)
-    result = await get_current_user(
-        token = token,
-        auth_service=auth_service
+        User(username="Johnny", email="1@test.com", hashed_password="123")
     )
+    token = create_access_token(user.id)
+    result = await get_current_user(token=token, auth_service=auth_service)
 
     assert result.id == user.id
 
@@ -34,7 +27,4 @@ async def test_get_current_user_wrong_id(auth_service):
     random_id = uuid4()
     token = create_access_token(random_id)
     with pytest.raises(UserNotFoundError):
-        await get_current_user(
-            token = token,
-            auth_service=auth_service
-        )
+        await get_current_user(token=token, auth_service=auth_service)

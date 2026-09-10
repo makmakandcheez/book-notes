@@ -52,7 +52,6 @@ async def test_authenticate_wrong_username(auth_service, user_data):
         await auth_service.authenticate_user("wrong_name", "1234")
 
 
-
 @pytest.mark.asyncio
 async def test_authenticate_wrong_password(auth_service, user_data):
     await auth_service.register(user_data)

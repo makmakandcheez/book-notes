@@ -14,7 +14,7 @@ class UserService:
         return await self.repo.get_user_by_id(user_id)
 
     async def get_users(self, page: int, limit: int, *, username: str | None = None) -> list[User]:
-        return await self.repo.get_users(offset=(page-1)*limit, limit=limit, username=username)
+        return await self.repo.get_users(offset=(page - 1) * limit, limit=limit, username=username)
 
     async def filter_users(self, username: str | None = None) -> list[User]:
         return await self.repo.filter_user(username=username)
@@ -27,6 +27,6 @@ class UserService:
         return user
 
     async def delete_user(self, *, user_id: UUID, current_user: User) -> User | None:
-        if user_id != current_user.id: # later add "and current_user.role != admin"
+        if user_id != current_user.id:  # later add "and current_user.role != admin"
             raise PermissionError("Not authorized to delete this user")
         return await self.repo.delete_user(user_id)

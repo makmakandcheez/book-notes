@@ -14,6 +14,7 @@ from app.core.database import Base
 if TYPE_CHECKING:
     from app.models.user import User
 
+
 class Note(Base):
     __tablename__ = "notes"
 
@@ -22,18 +23,13 @@ class Note(Base):
     body: Mapped[str] = mapped_column(String)
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     date_created: Mapped[datetime] = mapped_column(
-                                        DateTime(timezone=True),
-                                        server_default=func.now(),
-                                        nullable=False
-                                    )
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
     date_updated: Mapped[datetime] = mapped_column(
-                                        DateTime(timezone=True),
-                                        server_default=func.now(),
-                                        nullable=False
-                                    )
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
 
     user: Mapped[User] = relationship(back_populates="notes")
