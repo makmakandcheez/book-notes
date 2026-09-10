@@ -10,12 +10,7 @@ class NoteService:
         self.note_repo = note_repo
 
     async def add_note(self, data: NoteCreate, user_id: UUID) -> Note:
-        note = Note(
-            title=data.title,
-            body=data.body,
-            is_public=data.is_public,
-            user_id=user_id
-        )
+        note = Note(title=data.title, body=data.body, is_public=data.is_public, user_id=user_id)
         return await self.note_repo.create_note(note)
 
     async def get_user_public_notes(self, user_id: UUID) -> list[Note]:

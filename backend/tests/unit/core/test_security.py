@@ -45,7 +45,6 @@ def test_decode_refresh_token_with_access():
         decode_refresh_token(token)
 
 
-
 def test_create_and_decode_refresh_token():
     user_id = uuid4()
     refresh_token = create_jwt_refresh_token(user_id)
@@ -70,4 +69,3 @@ def test_hash_refresh_token():
     original_token = uuid4()
     hashed_token = hash_refresh_token(str(original_token))
     assert hashed_token != original_token
-

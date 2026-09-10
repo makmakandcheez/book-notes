@@ -10,7 +10,6 @@ class BookCreate(BaseModel):
     # date_published: str | None = None
 
 
-
 class BookResponse(BaseModel):
     id: int
     title: str

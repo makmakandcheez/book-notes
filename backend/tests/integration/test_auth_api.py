@@ -9,11 +9,7 @@ from app.core.security import decode_access_token, decode_refresh_token
 async def test_register_user(client):
     response = await client.post(
         "api/v1/auth/signup",
-        json={
-            "email": "test@example.com",
-            "username": "Johnny",
-            "password": "123"
-            }
+        json={"email": "test@example.com", "username": "Johnny", "password": "123"},
     )
     assert response.status_code == 201
     data = response.json()
@@ -24,16 +20,11 @@ async def test_register_user(client):
 async def test_login_for_access_token(client):
     response = await client.post(
         "api/v1/auth/signup",
-        json={
-            "email": "test@example.com",
-            "username": "Johnny",
-            "password": "123"
-            }
+        json={"email": "test@example.com", "username": "Johnny", "password": "123"},
     )
     user_id = UUID(response.json()["id"])
     response = await client.post(
-        "api/v1/auth/token",
-        data={"username": "Johnny", "password": "123"}
+        "api/v1/auth/token", data={"username": "Johnny", "password": "123"}
     )
     assert response.status_code == 200
     access_token = decode_access_token(response.json()["access_token"])
@@ -50,24 +41,16 @@ async def test_login_for_access_token(client):
 async def test_refresh(client):
     await client.post(
         "api/v1/auth/signup",
-        json={
-            "email": "test@test.com",
-            "username": "Tester",
-            "password": "123"
-        }
+        json={"email": "test@test.com", "username": "Tester", "password": "123"},
     )
     login_response = await client.post(
-        "api/v1/auth/token",
-        data={"username": "Tester", "password": "123"}
+        "api/v1/auth/token", data={"username": "Tester", "password": "123"}
     )
     access = login_response.json()["access_token"]
     rt = login_response.json()["refresh_token"]
 
     refresh_response = await client.post(
-        "api/v1/auth/refresh-token",
-        json={
-            "refresh_token": str(rt)
-        }
+        "api/v1/auth/refresh-token", json={"refresh_token": str(rt)}
     )
     assert refresh_response.status_code == 200
     new_access = refresh_response.json()["access_token"]
@@ -76,6 +59,3 @@ async def test_refresh(client):
     assert new_access != access
     assert new_rt != rt
     # more thngs to assert
-
-
-

@@ -27,8 +27,7 @@ async def create_user(data: UserCreate, service: AuthServiceDep) -> UserPublic:
 
 @router.post("/token", response_model=TokenResponse)
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    auth_service: AuthServiceDep
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], auth_service: AuthServiceDep
 ) -> TokenResponse:
     try:
         tokens = await auth_service.login(form_data.username, form_data.password)
@@ -36,30 +35,21 @@ async def login_for_access_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
-            headers={"WWW-Authenticate": "Bearer"}
+            headers={"WWW-Authenticate": "Bearer"},
         ) from e
-    response = TokenResponse(
-        access_token=tokens.access_token,
-        refresh_token=tokens.refresh_token
-    )
+    response = TokenResponse(access_token=tokens.access_token, refresh_token=tokens.refresh_token)
     return TokenResponse.model_validate(response)
 
 
 @router.post("/refresh-token", response_model=TokenResponse)
-async def refresh(
-    rt: RefreshTokenRequest,
-    auth_service: AuthServiceDep
-) -> TokenResponse:
+async def refresh(rt: RefreshTokenRequest, auth_service: AuthServiceDep) -> TokenResponse:
     try:
         tokens = await auth_service.refresh_token(rt.refresh_token)
     except (InvalidTokenError, InvalidRefreshTokenError) as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
-            headers={"WWW-Authenticate": "Bearer"}
+            headers={"WWW-Authenticate": "Bearer"},
         ) from e
-    response = TokenResponse(
-        access_token=tokens.access_token,
-        refresh_token=tokens.refresh_token
-    )
+    response = TokenResponse(access_token=tokens.access_token, refresh_token=tokens.refresh_token)
     return TokenResponse.model_validate(response)

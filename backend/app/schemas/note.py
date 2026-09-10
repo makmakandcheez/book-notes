@@ -9,10 +9,12 @@ class NoteCreate(BaseModel):
     body: str
     is_public: bool = False
 
+
 class NoteUpdate(BaseModel):
     title: str | None = None
     body: str | None = None
     is_public: bool | None = None
+
 
 class NoteResponse(BaseModel):
     id: uuid.UUID
@@ -24,4 +26,3 @@ class NoteResponse(BaseModel):
     user_id: uuid.UUID
 
     model_config = {"from_attributes": True}
-

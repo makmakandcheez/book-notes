@@ -20,12 +20,10 @@ class BookRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-
     async def create(self, book: Book) -> Book:
         self.db.add(book)
         await self.db.flush()
         return book
-
 
     async def delete(self, id: int) -> Book | None:
         book = await self.get_by_id(id)
@@ -33,4 +31,3 @@ class BookRepository:
             await self.db.delete(book)
             await self.db.flush()
         return book
-

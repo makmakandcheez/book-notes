@@ -19,12 +19,15 @@ class NoteRepository:
         return list(result.scalars().all())
 
     # add more complexity later
-    async def filter_note(self, *,
-                          user_id: UUID | None = None,
-                          title: str | None = None,
-                          is_public: bool | None = None) -> list[Note]:
+    async def filter_note(
+        self,
+        *,
+        user_id: UUID | None = None,
+        title: str | None = None,
+        is_public: bool | None = None,
+    ) -> list[Note]:
         conditions = []
-        stmt =select(Note)
+        stmt = select(Note)
         if user_id is not None:
             # append works because SQL objects overload == expression
             conditions.append(Note.user_id == user_id)
@@ -33,7 +36,7 @@ class NoteRepository:
         if is_public is not None:
             conditions.append(Note.is_public == is_public)
         stmt = select(Note).where(*conditions)
-        stmt = stmt.order_by(Note.date_created.asc(),Note.title,Note.id.asc())
+        stmt = stmt.order_by(Note.date_created.asc(), Note.title, Note.id.asc())
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
@@ -49,7 +52,6 @@ class NoteRepository:
         note.date_updated = func.now()
         await self.db.flush()
         await self.db.refresh(note)
-
 
     async def delete_note(self, note: Note) -> Note | None:
         if note:
