@@ -38,6 +38,21 @@ async def test_login_for_access_token(client):
 
 
 @pytest.mark.asyncio
+async def test_login_for_access_token_with_email(client):
+    response = await client.post(
+        "api/v1/auth/signup",
+        json={"email": "test@example.com", "username": "Johnny", "password": "123"},
+    )
+    user_id = UUID(response.json()["id"])
+    response = await client.post(
+        "api/v1/auth/token", data={"username": "test@example.com", "password": "123"}
+    )
+    assert response.status_code == 200
+    access_token = decode_access_token(response.json()["access_token"])
+    assert access_token["sub"] == str(user_id)
+
+
+@pytest.mark.asyncio
 async def test_refresh(client):
     await client.post(
         "api/v1/auth/signup",
