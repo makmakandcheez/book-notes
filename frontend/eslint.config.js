@@ -18,5 +18,12 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // Flags the standard "fetch on mount" effect pattern (setState directly
+      // in the effect body) as a smell, even though it's the pattern React's
+      // own docs use for data fetching. Too aggressive for a hand-rolled data
+      // layer without a fetching library.
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])
