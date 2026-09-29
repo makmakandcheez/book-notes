@@ -16,6 +16,9 @@ class UserService:
     async def get_users(self, page: int, limit: int, *, username: str | None = None) -> list[User]:
         return await self.repo.get_users(offset=(page - 1) * limit, limit=limit, username=username)
 
+    async def get_users_by_ids(self, ids: list[UUID]) -> list[User]:
+        return await self.repo.get_users_by_ids(ids)
+
     async def filter_users(self, username: str | None = None) -> list[User]:
         return await self.repo.filter_user(username=username)
 

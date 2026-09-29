@@ -36,6 +36,13 @@ class UserRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
+    async def get_users_by_ids(self, ids: list[UUID]) -> list[User]:
+        if not ids:
+            return []
+        stmt = select(User).where(User.id.in_(ids))
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def filter_user(self, *, username: str | None = None) -> list[User]:
         stmt = select(User)
         if username is not None:

@@ -18,10 +18,14 @@ router = APIRouter(
 async def get_users(
     service: UserServiceDep,
     username: str | None = None,
+    ids: Annotated[list[UUID] | None, Query()] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=10)] = 5,
 ) -> list[UserPublic]:
-    users = await service.get_users(page=page, limit=limit, username=username)
+    if ids:
+        users = await service.get_users_by_ids(ids)
+    else:
+        users = await service.get_users(page=page, limit=limit, username=username)
     return [UserPublic.model_validate(u) for u in users]
 
 
