@@ -95,6 +95,25 @@ async def test_get_users_with_large_limit(user_repo):
 
 
 @pytest.mark.asyncio
+async def test_get_users_by_ids(user_repo):
+    users = [
+        User(username=f"user{i}", email=f"{i}@test.com", hashed_password=get_password_hash("123"))
+        for i in range(1, 4)
+    ]
+    for user in users:
+        await user_repo.create_user(user)
+
+    result = await user_repo.get_users_by_ids([users[0].id, users[2].id])
+    assert {user.username for user in result} == {"user1", "user3"}
+
+
+@pytest.mark.asyncio
+async def test_get_users_by_ids_empty_list(user_repo):
+    result = await user_repo.get_users_by_ids([])
+    assert result == []
+
+
+@pytest.mark.asyncio
 async def test_delete_user_deletes_on_cascade(user_repo, note_repo, refresh_token_repo):
     users = [
         User(username=f"user{i}", email=f"{i}@test.com", hashed_password=get_password_hash("123"))

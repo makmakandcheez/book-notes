@@ -99,3 +99,20 @@ async def get_current_user(
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
 # def get_current_active_user
+
+optional_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token", auto_error=False)
+
+
+async def get_optional_current_user(
+    token: Annotated[str | None, Depends(optional_oauth2_scheme)],
+    auth_service: AuthServiceDep,
+) -> User | None:
+    if token is None:
+        return None
+    try:
+        return await auth_service.authenticate_user_from_token(token)
+    except InvalidTokenError:
+        return None
+
+
+OptionalCurrentUserDep = Annotated[User | None, Depends(get_optional_current_user)]

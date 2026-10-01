@@ -155,6 +155,23 @@ async def test_get_users_username_param_no_user_found(client, post_10_users):
 
 
 @pytest.mark.asyncio
+async def test_get_users_by_ids(client, post_10_users):
+    all_users = (await client.get("api/v1/users/?limit=10")).json()
+    ids = [all_users[0]["id"], all_users[2]["id"]]
+
+    response = await client.get("api/v1/users/", params={"ids": ids})
+
+    assert response.status_code == 200
+    assert {user["id"] for user in response.json()} == set(ids)
+
+
+@pytest.mark.asyncio
+async def test_get_users_by_ids_empty(client, post_10_users):
+    response = await client.get("api/v1/users/?username=user1")
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
 async def test_get_user_notes(db, client, note_repo, user_repo, post_10_users):
     user = await user_repo.get_user_by_username("user1")
     await note_repo.create_note(Note(title="PrivateNote", body="My eyes only", user_id=user.id))

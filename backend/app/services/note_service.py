@@ -17,8 +17,21 @@ class NoteService:
         notes = await self.note_repo.filter_note(user_id=user_id, is_public=True)
         return notes
 
-    async def filter_notes(self, title: str | None = None) -> list[Note]:
-        return await self.note_repo.filter_note(title=title)
+    async def filter_notes(
+        self,
+        *,
+        title: str | None = None,
+        user_id: UUID | None = None,
+        is_public: bool | None = None,
+        requesting_user_id: UUID | None = None,
+    ) -> list[Note]:
+        # Only the note owner can see their own private notes.
+        is_own_notes = user_id is not None and user_id == requesting_user_id
+        if is_own_notes:
+            return await self.note_repo.filter_note(
+                user_id=user_id, title=title, is_public=is_public
+            )
+        return await self.note_repo.filter_note(user_id=user_id, title=title, is_public=True)
 
     async def get_by_id(self, id: UUID) -> Note:
         return await self.note_repo.get_note_by_id(id)
@@ -32,6 +45,10 @@ class NoteService:
         await self.note_repo.update_note(note, new_data)
         return note
 
-    async def delete_note(self, id: UUID) -> Note:
+    async def delete_note(self, id: UUID, user_id: UUID) -> Note | None:
         note = await self.note_repo.get_note_by_id(id)
+        if note is None:
+            return None
+        if note.user_id != user_id:
+            raise PermissionError("Not authorized to delete this note")
         return await self.note_repo.delete_note(note)

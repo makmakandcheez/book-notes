@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-DEFAULT: var(--radius);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-mono-face);
+}
+
+:root {
+  --background: #0c0c0c;
+  --foreground: #e8e8e6;
+  --card: #141414;
+  --card-foreground: #e8e8e6;
+  --primary: #e8e8e6;
+  --primary-foreground: #0c0c0c;
+  --secondary: #1c1c1c;
+  --secondary-foreground: #a8a8a4;
+  --muted: #1a1a1a;
+  --muted-foreground: #6a6a66;
+  --accent: #8b7cf6;
+  --accent-foreground: #ffffff;
+  --border: #222220;
+  --ring: #8b7cf6;
+  --radius: 4px;
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono-face: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+*:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+::selection {
+  background: rgba(139, 124, 246, 0.3);
+}
+
+textarea, input {
+  font-family: inherit;
+}

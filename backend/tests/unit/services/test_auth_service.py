@@ -45,6 +45,13 @@ async def test_authenticate_user(auth_service, user_data):
 
 
 @pytest.mark.asyncio
+async def test_authenticate_user_with_email(auth_service, user_data):
+    await auth_service.register(user_data)
+    user = await auth_service.authenticate_user("test@test.com", "1234")
+    assert user.username == "tester"
+
+
+@pytest.mark.asyncio
 async def test_authenticate_wrong_username(auth_service, user_data):
     await auth_service.register(user_data)
     with pytest.raises(InvalidCredentialsError, match="Incorrect username or password"):

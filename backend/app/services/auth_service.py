@@ -60,8 +60,11 @@ class AuthService:
             raise UserNotFoundError
         return user
 
-    async def authenticate_user(self, username: str, password: str) -> User:
-        user = await self.user_repo.get_user_by_username(username)
+    async def authenticate_user(self, identifier: str, password: str) -> User:
+        # `identifier` may be either a username or an email — login accepts both.
+        user = await self.user_repo.get_user_by_username(identifier)
+        if user is None:
+            user = await self.user_repo.get_user_by_email(identifier)
         if not user:
             verify_password(password, DUMMY_HASH)
             raise InvalidCredentialsError("Incorrect username or password")
@@ -79,8 +82,8 @@ class AuthService:
         token = await self.token_repo.create_refresh_token(token)
         return token
 
-    async def login(self, username: str, password: str) -> TokenPair:
-        user = await self.authenticate_user(username, password)
+    async def login(self, identifier: str, password: str) -> TokenPair:
+        user = await self.authenticate_user(identifier, password)
         access_token = create_access_token(user.id)
         refresh_token = create_jwt_refresh_token(user.id)
         await self.store_refresh_token(refresh_token)
