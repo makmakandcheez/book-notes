@@ -1,6 +1,12 @@
 # Book Notes
 
-A full-stack application for note-taking with a FastAPI backend, a PostgreSQL database, and Docker containerization. It features user creation and secure login with JWT token authentication.
+A full-stack application for note-taking with a FastAPI backend, a PostgreSQL database, a React frontend, and Docker containerization for all three. It features user creation and secure login with JWT token authentication.
+
+## Live Demo
+
+The backend + database are deployed on Render: **https://book-notes-6tdd.onrender.com** (interactive docs at `/docs`).
+
+The frontend talks to that URL by default — see [Frontend](#frontend) below — so running it against the live backend needs no configuration at all. The frontend itself isn't deployed live yet; `frontend/Dockerfile` is ready to deploy as a container, or its build output to a static host.
 
 ## Project Structure
 
@@ -79,30 +85,55 @@ book-notes/
 │   ├── pyproject.toml
 │   ├── requirements.txt
 │   └── uv.lock
+├── frontend/
+│   ├── src/
+│   │   ├── api/            # axios wrappers per backend resource
+│   │   ├── features/       # auth, notes, users, landing (feature-sliced)
+│   │   ├── lib/            # axiosConfig, tokenStorage, format helpers
+│   │   ├── components/     # shared UI (Header, Footer, Avatar)
+│   │   ├── layouts/
+│   │   └── router.tsx
+│   ├── Dockerfile          # multi-stage Vite build -> nginx
+│   ├── nginx.conf
+│   ├── package.json
+│   └── .env.local          # local-only VITE_API_URL override
 ├── database/
 │   └── init.sql
 ├── docker-compose.yml
+├── .env.example
 ├── LICENSE
 ├── README.md
 ├── .dockerignore
 └── .ignore
 ```
 
-
 ## Getting Started
 ---
 
 ### Using Docker
 
+This spins up the whole stack locally — PostgreSQL, the FastAPI backend, and the React frontend — fully independent of the live Render deployment, so it also works offline.
+
 1. Make sure [Docker](https://www.docker.com/get-started/) and [Docker Compose](https://docs.docker.com/compose/install/) are installed.
-2. Start the application:
+2. Copy the environment template and adjust it if needed (defaults work out of the box):
+
+```bash
+cp .env.example .env
+```
+
+3. Start the application:
 
 ```bash
 docker compose -f docker-compose.yml up -d
 ```
 
+This builds and starts containers for the backend, the frontend, and the PostgreSQL database (plus a pgAdmin instance for inspecting the database).
 
-Docker will start containers based on the images for the backend and the PostgreSQL database.
+| Service  | URL                          |
+| -------- | ----------------------------- |
+| Frontend | http://localhost:5173         |
+| Backend  | http://localhost:8000 (docs at `/docs`) |
+| pgAdmin  | http://localhost:5050          |
 
 To stop the application:
 
@@ -120,18 +151,37 @@ docker compose -f docker-compose.yml down -v
 
 ### Environment Variables
 
-The backend requires environment variables for configuration and security.
-
-Create a `.env` file in the `backend/` directory:
+Configuration lives in a `.env` file at the **repo root** (not `backend/`) — `docker-compose.yml` reads it for variable substitution and passes the relevant values through to the backend container. Copy `.env.example` to get started:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/book_notes
+DATABASE_URL=postgresql+asyncpg://myuser:mypassword@db:5432/mydatabase
 SECRET_KEY=your-secret-key
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=7
+CORS_ORIGINS=["http://localhost:5173"]
+VITE_API_URL=http://localhost:8000
 ```
 
+- `CORS_ORIGINS` is a JSON list of origins the backend will accept browser requests from — it must include wherever the frontend is actually served from.
+- `VITE_API_URL` is only used at frontend **image build time** (baked into the JS bundle by `frontend/Dockerfile`); changing it requires rebuilding the frontend container (`docker compose up -d --build frontend`). It's required — see [Frontend](#frontend) below.
+- `ACCESS_TOKEN_EXPIRE_MINUTES` / `REFRESH_TOKEN_EXPIRE_DAYS` are optional (default to 30 minutes / 7 days — see `backend/app/core/config.py`).
+
 Do not commit your `.env` file or production secrets to version control.
+
+---
+
+## Frontend
+
+The frontend (`frontend/`) is a React + Vite app. Its API base URL is controlled by `VITE_API_URL` (`frontend/src/utils/axiosConfig.ts`), and is **required** — there's no hardcoded fallback, so the app throws at startup if it's unset. Point it at whatever backend you want to talk to, e.g. `http://localhost:8000` for a locally running backend, or your own deployed backend's URL.
+
+Running without Docker:
+
+```bash
+cd frontend
+cp .env.example .env.local
+pnpm install
+pnpm dev
+```
+
+`.env.example` defaults `VITE_API_URL` to `http://localhost:8000`, so once copied to `.env.local` it talks to a locally running backend (`uv run fastapi dev app/main.py`, see [Development](#development)). Point it elsewhere by editing `.env.local`.
 
 ---
 
@@ -327,6 +377,8 @@ uv run pytest
 * **SQLAlchemy**
 * **Pydantic**
 * **PostgreSQL**
+* **React**
+* **Vite**
 * **Docker**
 * **Docker Compose**
 * **JWT**
@@ -369,13 +421,12 @@ http://localhost:8000/docs
 
 Potential future improvements include:
 
-* Frontend client for interacting with the API
+* Deploying the frontend live (Dockerfile is ready; needs a host)
 * Book metadata integration
 * Rich-text note editing
 * Note search and filtering
 * Improved pagination and sorting
-* Automated CI/CD
-* Production deployment
+* Automated CI/CD for the frontend and for deployments
 
 ---
 
