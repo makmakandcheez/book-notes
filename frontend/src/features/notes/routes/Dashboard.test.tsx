@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { describe, expect, it, vi } from "vitest";
+import { describe, it, vi } from "vitest";
 import * as notesApi from "../../../api/notesApi";
 import { AuthContext, type AuthContextValue } from "../../auth/context/authContext";
 import type { Note } from "../../../types";
