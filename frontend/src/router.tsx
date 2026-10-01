@@ -1,29 +1,18 @@
 import { createBrowserRouter } from "react-router";
-import { lazy, Suspense } from "react";
 
 import RootLayout from "./layouts/RootLayout";
-
-const Landing = lazy(() => import("./features/landing/routes/Landing"));
-
-function withSuspense(page: React.ReactNode) {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-[40vh] items-center justify-center text-sm text-black/60">
-          Loading...
-        </div>
-      }
-    >
-      {page}
-    </Suspense>
-  );
-}
+import { withSuspense } from "./utils/withSuspense";
+import { Dashboard, Landing, NotePage, Profile } from "./routeComponents";
 
 const router = createBrowserRouter([
     {
-        element: <RootLayout />,
+        path: "/",
+        Component: RootLayout,
         children: [
-            { path: "/", element: withSuspense(<Landing />) },
+            { index: true, element: withSuspense(<Landing />) },
+            { path: "dashboard", element: withSuspense(<Dashboard />) },
+            { path: "note/:id", element: withSuspense(<NotePage />) },
+            { path: "profile/:userId", element: withSuspense(<Profile />) },
         ],
     },
 ]);
